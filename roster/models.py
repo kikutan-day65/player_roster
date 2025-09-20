@@ -90,3 +90,30 @@ class Sport(models.Model):
         blank=True,
         help_text=_("Timestamp of when the sport was deleted"),
     )
+
+
+class Comment(models.Model):
+    id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
+    user = models.ForeignKey(
+        "user_account.UserAccount", on_delete=models.CASCADE, related_name="comments"
+    )
+    player = models.ForeignKey(
+        "Player", on_delete=models.CASCADE, related_name="comments"
+    )
+    body = models.TextField(_("body"))
+    created_at = models.DateTimeField(
+        _("created at"),
+        auto_now_add=True,
+        help_text=_("Timestamp of when the comment was created"),
+    )
+    updated_at = models.DateTimeField(
+        _("updated at"),
+        auto_now=True,
+        help_text=_("Timestamp of when the comment was updated"),
+    )
+    deleted_at = models.DateTimeField(
+        _("deleted at"),
+        null=True,
+        blank=True,
+        help_text=_("Timestamp of when the comment was deleted"),
+    )
