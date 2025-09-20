@@ -8,7 +8,12 @@ from core.validators import only_letters_validator
 
 class Player(models.Model):
     id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
-    team = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="players")
+    team = models.ForeignKey(
+        "Team",
+        on_delete=models.CASCADE,
+        related_name="players",
+        verbose_name=_("team_id"),
+    )
     first_name = models.CharField(
         _("first_name"),
         max_length=150,
@@ -41,7 +46,12 @@ class Player(models.Model):
 
 class Team(models.Model):
     id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
-    sport = models.ForeignKey("Sport", on_delete=models.CASCADE, related_name="teams")
+    sport = models.ForeignKey(
+        "Sport",
+        on_delete=models.CASCADE,
+        related_name="teams",
+        verbose_name=_("sport_id"),
+    )
     name = models.CharField(
         _("team_name"),
         max_length=150,
@@ -95,10 +105,16 @@ class Sport(models.Model):
 class Comment(models.Model):
     id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
     user = models.ForeignKey(
-        "user_account.UserAccount", on_delete=models.CASCADE, related_name="comments"
+        "user_account.UserAccount",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name=_("user_id"),
     )
     player = models.ForeignKey(
-        "Player", on_delete=models.CASCADE, related_name="comments"
+        "Player",
+        on_delete=models.CASCADE,
+        related_name="comments",
+        verbose_name=_("player_id"),
     )
     body = models.TextField(_("body"))
     created_at = models.DateTimeField(
