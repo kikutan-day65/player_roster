@@ -1,6 +1,5 @@
-from django.core import validators
+from django.core.validators import RegexValidator
 
-
-class OnlyLettersValidator(validators.RegexValidator):
-    regex = r"^[A-Za-z]+$"
-    message = "Only letters are allowed."
+only_letters_validator = RegexValidator(
+    regex=r"^[A-Za-z]+$", message="Only letters are allowed."
+)
