@@ -43,6 +43,9 @@ class Player(models.Model):
         help_text=_("Timestamp of when the player was deleted"),
     )
 
+    def __str__(self):
+        return self.first_name + self.last_name
+
 
 class Team(models.Model):
     class SportChoice(models.TextChoices):
@@ -76,6 +79,9 @@ class Team(models.Model):
         blank=True,
         help_text=_("Timestamp of when the team was deleted"),
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Comment(models.Model):
