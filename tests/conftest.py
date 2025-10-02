@@ -1,6 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
+from roster.models import Team
 from user_account.models import UserAccount
 
 
@@ -11,13 +12,11 @@ def api_client():
 
 @pytest.fixture
 def test_user_data():
-    data = {
+    return {
         "username": "test_user",
         "email": "test_user@example.com",
         "password": "testuser123",
     }
-
-    return data
 
 
 @pytest.fixture
@@ -46,3 +45,13 @@ def super_user(db):
     return UserAccount.objects.create_superuser(
         username="super", email="super@example.com", password="super123"
     )
+
+
+@pytest.fixture
+def test_team(db):
+    return Team.objects.create(name="Test Team", sport="baseball")
+
+
+@pytest.fixture
+def test_player_data(test_team):
+    return {"first_name": "John", "last_name": "Doe", "team_id": str(test_team.id)}
