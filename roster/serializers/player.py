@@ -42,8 +42,8 @@ class PlayerAdminSerializer(serializers.ModelSerializer):
     }
     """
 
-    team = serializers.PrimaryKeyRelatedField(
-        queryset=Team.objects.all(), source="team", write_only=True
+    team_id = serializers.PrimaryKeyRelatedField(
+        source="team", queryset=Team.objects.all(), write_only=True
     )
 
     class Meta:
