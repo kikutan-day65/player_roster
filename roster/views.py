@@ -19,7 +19,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminUser]
         elif self.action in ["list", "retrieve"]:
             permission_classes = [AllowAny]
-        elif self.action in ["destroy"]:
+        elif self.action == "destroy":
             permission_classes = [IsSuperUser]
         else:
             permission_classes = [IsAuthenticated]
@@ -32,7 +32,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
             if self.request.user.is_staff:
                 return PlayerAdminSerializer
             return PlayerPublicSerializer
-        elif self.action in ["destroy"]:
+        elif self.action == "destroy":
             return PlayerAdminSerializer
         return PlayerPublicSerializer
 

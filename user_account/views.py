@@ -22,7 +22,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [AllowAny]
-        elif self.action == "list":
+        elif self.action in ["list", "partial_update"]:
             permission_classes = [IsAdminUser]
         elif self.action == "retrieve":
             permission_classes = [IsAuthenticated]
