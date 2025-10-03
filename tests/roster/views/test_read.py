@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from django.urls import reverse
 
@@ -92,8 +94,8 @@ def test_success_to_get_specific_player_by_staff(api_client, test_players, admin
 
 @pytest.mark.django_db
 def test_fails_to_get_the_nonexistent_player(api_client):
-
-    url = reverse("player-detail", kwargs={"pk": "nonexistent-id"})
+    nonexistent_player_id = uuid4()
+    url = reverse("player-detail", kwargs={"pk": nonexistent_player_id})
     response = api_client.get(url)
 
     assert response.status_code == 404

@@ -28,6 +28,6 @@ Admin or super users can get the specific players in the public format
 -   [x] status code: 200
 -   [x] response is valid format of its serializer
 
-User cannot get non-existent player
+Cannot get non-existent player
 
 -   [x] status code: 404
