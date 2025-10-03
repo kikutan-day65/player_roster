@@ -1,4 +1,5 @@
 import pytest
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from roster.models import Player, Team
@@ -65,6 +66,12 @@ def test_players(test_team):
         ),
         Player.objects.create(
             first_name="Jane", last_name="Doe", team_id=str(test_team.id)
+        ),
+        Player.objects.create(
+            first_name="Deleted",
+            last_name="User",
+            team_id=str(test_team.id),
+            deleted_at=timezone.now(),
         ),
     ]
     return players
