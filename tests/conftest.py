@@ -49,28 +49,32 @@ def super_user(db):
 
 
 @pytest.fixture
-def test_team(db):
-    return Team.objects.create(name="Test Team", sport="baseball")
+def test_teams(db):
+    teams = [
+        Team.objects.create(name="Test Team", sport="baseball"),
+        Team.objects.create(name="Test Team 2", sport="basketball"),
+    ]
+    return teams
 
 
 @pytest.fixture
-def test_player_data(test_team):
-    return {"first_name": "John", "last_name": "Doe", "team_id": str(test_team.id)}
+def test_player_data(test_teams):
+    return {"first_name": "John", "last_name": "Doe", "team_id": str(test_teams[0].id)}
 
 
 @pytest.fixture
-def test_players(test_team):
+def test_players(test_teams):
     players = [
         Player.objects.create(
-            first_name="John", last_name="Doe", team_id=str(test_team.id)
+            first_name="John", last_name="Doe", team_id=str(test_teams[0].id)
         ),
         Player.objects.create(
-            first_name="Jane", last_name="Doe", team_id=str(test_team.id)
+            first_name="Jane", last_name="Doe", team_id=str(test_teams[0].id)
         ),
         Player.objects.create(
             first_name="Deleted",
             last_name="User",
-            team_id=str(test_team.id),
+            team_id=str(test_teams[0].id),
             deleted_at=timezone.now(),
         ),
     ]
