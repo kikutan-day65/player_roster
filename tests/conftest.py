@@ -1,7 +1,7 @@
 import pytest
 from rest_framework.test import APIClient
 
-from roster.models import Team
+from roster.models import Player, Team
 from user_account.models import UserAccount
 
 
@@ -55,3 +55,16 @@ def test_team(db):
 @pytest.fixture
 def test_player_data(test_team):
     return {"first_name": "John", "last_name": "Doe", "team_id": str(test_team.id)}
+
+
+@pytest.fixture
+def test_players(test_team):
+    players = [
+        Player.objects.create(
+            first_name="John", last_name="Doe", team_id=str(test_team.id)
+        ),
+        Player.objects.create(
+            first_name="Jane", last_name="Doe", team_id=str(test_team.id)
+        ),
+    ]
+    return players
