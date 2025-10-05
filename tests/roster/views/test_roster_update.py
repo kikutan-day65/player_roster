@@ -128,4 +128,3 @@ def test_fails_to_change_player_information_with_nonexistent_team(
     response = api_client.patch(url, change_data)
 
     assert response.status_code == 400
-    print(response.data)
