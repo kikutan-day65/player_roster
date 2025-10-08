@@ -13,6 +13,14 @@ def test_player_creation_success(api_client, test_player_data, admin_user):
         "updated_at",
         "deleted_at",
     }
+    expected_fields_for_team = {
+        "id",
+        "name",
+        "sport",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+    }
 
     api_client.force_authenticate(admin_user)
 
@@ -24,8 +32,7 @@ def test_player_creation_success(api_client, test_player_data, admin_user):
     assert response.data["last_name"] == test_player_data["last_name"]
     assert response.data["team"]["id"] == test_player_data["team_id"]
     assert set(response.data.keys()) == expected_fields
-    assert "name" in response.data["team"]
-    assert "sport" in response.data["team"]
+    assert set(response.data["team"].keys()) == expected_fields_for_team
 
 
 @pytest.mark.django_db
