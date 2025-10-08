@@ -49,6 +49,11 @@ def super_user(db):
 
 
 @pytest.fixture
+def test_team_data(db):
+    return {"name": "John", "sport": "baseball"}
+
+
+@pytest.fixture
 def test_teams(db):
     teams = [
         Team.objects.create(name="Test Team", sport="baseball"),
