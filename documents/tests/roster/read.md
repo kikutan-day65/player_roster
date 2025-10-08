@@ -28,6 +28,44 @@ Admin or super users can get the specific players in the public format
 -   [x] status code: 200
 -   [x] response is valid format of its serializer
 
+### Negative Cases
+
+Cannot get non-existent player
+
+-   [x] status code: 404
+
+## GET `api/v1/teams/`
+
+### Positive cases
+
+Authenticated or unauthenticated users can get the list of all teams in the public format
+
+-   [x] status code: 200
+-   [x] response list length is 2
+-   [x] response is valid format of its serializer
+
+Admin or super users can get the list of all teams in the administrator format
+
+-   [x] status code: 200
+-   [x] response list length is 2
+-   [x] response is valid format of its serializer
+
+## GET `api/v1/teams/{id}/`
+
+### Positive cases
+
+Authenticated or unauthenticated users can get the specific teams in the public format
+
+-   [x] status code: 200
+-   [x] response is valid format of its serializer
+
+Admin or super users can get the specific teams in the public format
+
+-   [x] status code: 200
+-   [x] response is valid format of its serializer
+
+### Negative Cases
+
 Cannot get non-existent player
 
 -   [x] status code: 404
