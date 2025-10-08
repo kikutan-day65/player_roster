@@ -32,7 +32,10 @@ class PlayerAdminSerializer(serializers.ModelSerializer):
         "team": {
             "id": "uuid-wwww-vvvv",
             "name": "Yokohama DeNA Baystars",
-            "sport": "baseball"
+            "sport": "baseball",
+            "created_at": "YYYY-MM-DD",
+            "updated_at": "YYYY-MM-DD",
+            "deleted_at": "YYYY-MM-DD"
         },
         "first_name": "John",
         "last_name": "Doe"
@@ -46,8 +49,18 @@ class PlayerAdminSerializer(serializers.ModelSerializer):
         source="team", queryset=Team.objects.all(), write_only=True
     )
 
+    team = TeamAdminSerializer(read_only=True)
+
     class Meta:
         model = Player
-        fields = "__all__"
+        fields = [
+            "id",
+            "team",
+            "first_name",
+            "last_name",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+            "team_id",
+        ]
         read_only_fields = ["id", "created_at", "updated_at", "deleted_at"]
-        depth = 1
