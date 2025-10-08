@@ -31,4 +31,5 @@ class TeamAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = "__all__"
+        fields = ["id", "name", "sport", "created_at", "updated_at", "deleted_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
