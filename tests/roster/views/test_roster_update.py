@@ -128,3 +128,81 @@ def test_fails_to_change_player_information_with_nonexistent_team(
     response = api_client.patch(url, change_data)
 
     assert response.status_code == 400
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "field, data", [("name", "updated name"), ("sport", "basketball")]
+)
+def test_successes_to_change_team_name_sport(
+    api_client, test_teams, admin_user, field, data
+):
+    expected_fields = {
+        "id",
+        "name",
+        "sport",
+        "created_at",
+        "updated_at",
+        "deleted_at",
+    }
+
+    api_client.force_authenticate(admin_user)
+    url = reverse("team-detail", kwargs={"pk": test_teams[0].id})
+
+    change_data = {field: data}
+
+    response = api_client.patch(url, change_data)
+
+    assert response.status_code == 200
+    assert response.data[field] == data
+    assert set(response.data.keys()) == expected_fields
+
+
+@pytest.mark.django_db
+def test_fails_to_change_team_by_general_user(api_client, test_teams, test_user):
+    api_client.force_authenticate(test_user)
+    url = reverse("team-detail", kwargs={"pk": test_teams[0].id})
+
+    change_data = {"name": "updated name"}
+
+    response = api_client.patch(url, change_data)
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_fails_to_change_team_by_unauthenticated_user(api_client, test_teams):
+    url = reverse("team-detail", kwargs={"pk": test_teams[0].id})
+
+    change_data = {"name": "updated name"}
+
+    response = api_client.patch(url, change_data)
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_fails_to_change_nonexistent_team_information(api_client, admin_user):
+    nonexistent_team_id = uuid4()
+    url = reverse("team-detail", kwargs={"pk": nonexistent_team_id})
+
+    change_data = {"first_name": "updated first name"}
+
+    api_client.force_authenticate(admin_user)
+    response = api_client.patch(url, change_data)
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_fails_to_change_team_information_with_nonexistent_sport_choice(
+    api_client, test_teams, admin_user
+):
+    api_client.force_authenticate(admin_user)
+    url = reverse("team-detail", kwargs={"pk": test_teams[0].id})
+
+    change_data = {"sport": "nonexistent_sport"}
+
+    response = api_client.patch(url, change_data)
+
+    assert response.status_code == 400
