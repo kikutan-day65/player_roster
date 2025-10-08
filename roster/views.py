@@ -39,3 +39,35 @@ class PlayerViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
         instance.save(update_fields=["deleted_at"])
+
+
+class TeamViewSet(viewsets.ModelViewSet):
+    http_method_names = ["get", "post", "patch", "delete"]
+
+    queryset = Team.objects.filter(deleted_at__isnull=True).order_by("-created_at")
+
+    def get_permissions(self):
+        if self.action in ["create", "partial_update"]:
+            permission_classes = [IsAdminUser]
+        elif self.action in ["list", "retrieve"]:
+            permission_classes = [AllowAny]
+        elif self.action == "destroy":
+            permission_classes = [IsSuperUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action in ["create", "partial_update"]:
+            return TeamAdminSerializer
+        elif self.action in ["list", "retrieve"]:
+            if self.request.user.is_staff:
+                return TeamAdminSerializer
+            return TeamPublicSerializer
+        elif self.action == "destroy":
+            return TeamAdminSerializer
+        return TeamPublicSerializer
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=["deleted_at"])
