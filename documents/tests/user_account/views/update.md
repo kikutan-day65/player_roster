@@ -19,6 +19,10 @@ Unauthenticated user cannot manipulate the information of the user via this endp
 
 -   [x] status code: 401
 
+Cannot manipulate the information of nonexistent user
+
+-   [x] status code: 404
+
 ## PATCH `api/v1/user-accounts/me/`
 
 ## Positive cases
