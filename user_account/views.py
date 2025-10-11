@@ -6,10 +6,10 @@ from core.permissions import IsSuperUser
 
 from .models import UserAccount
 from .serializers import (
+    UserAccountAdminSerializer,
     UserAccountCreateSerializer,
-    UserAccountListSerializer,
-    UserAccountRetrieveSerializer,
-    UserAccountSerializer,
+    UserAccountMeSerializer,
+    UserAccountPublicSerializer,
 )
 
 
@@ -26,8 +26,6 @@ class UserAccountViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminUser]
         elif self.action == "retrieve":
             permission_classes = [IsAuthenticated]
-        elif self.action == "partial_update":
-            permission_classes = [IsAdminUser]
         elif self.action == "destroy":
             permission_classes = [IsSuperUser]
         else:
@@ -37,13 +35,11 @@ class UserAccountViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return UserAccountCreateSerializer
+        elif self.action in ["list", "partial_update"]:
+            return UserAccountAdminSerializer
         elif self.action == "retrieve":
-            return UserAccountRetrieveSerializer
-        elif self.action == "list":
-            return UserAccountListSerializer
-        elif self.action == "partial_update":
-            return UserAccountSerializer
-        return UserAccountRetrieveSerializer
+            return UserAccountPublicSerializer
+        return UserAccountPublicSerializer
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
@@ -52,7 +48,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 
 class UserAccountMeViewSet(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ["get", "patch", "delete"]
-    serializer_class = UserAccountSerializer
+    serializer_class = UserAccountMeSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
