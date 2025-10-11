@@ -21,6 +21,10 @@ Unauthenticated user cannot delete the specific user
 
 -   [x] status code: 401
 
+Cannot delete the nonexistent user
+
+-   [x] status code: 404
+
 ## DELETE `api/v1/user-accounts/me/`
 
 ### Positive cases
