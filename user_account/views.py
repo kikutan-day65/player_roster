@@ -38,6 +38,8 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         elif self.action in ["list", "partial_update"]:
             return UserAccountAdminSerializer
         elif self.action == "retrieve":
+            if self.request.user.is_staff:
+                return UserAccountAdminSerializer
             return UserAccountPublicSerializer
         return UserAccountPublicSerializer
 
