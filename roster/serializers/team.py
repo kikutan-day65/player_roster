@@ -7,7 +7,7 @@ class TeamPublicSerializer(serializers.ModelSerializer):
     """
     {
         "id": "uuid-wwww-vvvv",
-        "name": "Yokohama DeNA Baystars",
+        "name": "Sample Team",
         "sport": "baseball"
     }
     """
@@ -21,7 +21,7 @@ class TeamAdminSerializer(serializers.ModelSerializer):
     """
     {
         "id": "uuid-wwww-vvvv",
-        "name": "Yokohama DeNA Baystars",
+        "name": "Sample Team",
         "sport": "baseball"
         "created_at": "YYYY-MM-DD",
         "updated_at": "YYYY-MM-DD",
