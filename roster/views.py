@@ -32,8 +32,6 @@ class PlayerViewSet(viewsets.ModelViewSet):
             if self.request.user.is_staff:
                 return PlayerAdminSerializer
             return PlayerPublicSerializer
-        elif self.action == "destroy":
-            return PlayerAdminSerializer
         return PlayerPublicSerializer
 
     def perform_destroy(self, instance):
@@ -64,8 +62,6 @@ class TeamViewSet(viewsets.ModelViewSet):
             if self.request.user.is_staff:
                 return TeamAdminSerializer
             return TeamPublicSerializer
-        elif self.action == "destroy":
-            return TeamAdminSerializer
         return TeamPublicSerializer
 
     def perform_destroy(self, instance):
