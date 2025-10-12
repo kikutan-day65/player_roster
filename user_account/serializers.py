@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
-from roster.serializers.comment import CommentNestedSerializer
+from core.nested_serializers import CommentNestedForUserAccountSerializer
 
 from .models import UserAccount
 
@@ -68,7 +68,7 @@ class UserAccountAdminSerializer(serializers.ModelSerializer):
     }
     """
 
-    comments = CommentNestedSerializer(read_only=True, many=True)
+    comments = CommentNestedForUserAccountSerializer(read_only=True, many=True)
 
     class Meta:
         model = UserAccount
@@ -91,7 +91,6 @@ class UserAccountAdminSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "deleted_at",
-            "comments",
         ]
 
 
@@ -121,7 +120,7 @@ class UserAccountPublicSerializer(serializers.ModelSerializer):
     }
     """
 
-    comments = CommentNestedSerializer(read_only=True, many=True)
+    comments = CommentNestedForUserAccountSerializer(read_only=True, many=True)
 
     class Meta:
         model = UserAccount
@@ -161,7 +160,7 @@ class UserAccountMeSerializer(serializers.ModelSerializer):
     }
     """
 
-    comments = CommentNestedSerializer(read_only=True, many=True)
+    comments = CommentNestedForUserAccountSerializer(read_only=True, many=True)
 
     class Meta:
         model = UserAccount
