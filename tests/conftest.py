@@ -93,6 +93,9 @@ def test_comments(test_user, test_user_2, test_players):
             body="Comment_body", player=test_players[0], user=test_user
         ),
         Comment.objects.create(
-            body="Comment_body", player=test_players[0], user=test_user_2
+            body="Comment_body", player=test_players[1], user=test_user_2
+        ),
+        Comment.objects.create(
+            body="Comment_body", player=test_players[1], user=test_user
         ),
     ]
