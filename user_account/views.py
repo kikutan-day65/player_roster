@@ -6,26 +6,31 @@ from core.permissions import IsSuperUser
 
 from .models import UserAccount
 from .serializers import (
-    UserAccountAdminSerializer,
     UserAccountCreateSerializer,
+    UserAccountListAdminSerializer,
+    UserAccountListPublicSerializer,
     UserAccountMeSerializer,
-    UserAccountPublicSerializer,
+    UserAccountPatchSerializer,
+    UserAccountRetrieveAdminSerializer,
+    UserAccountRetrievePublicSerializer,
 )
 
 
 class UserAccountViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    queryset = UserAccount.objects.filter(deleted_at__isnull=True).order_by(
-        "-created_at"
-    )
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return UserAccount.objects.all().order_by("-created_at")
+        return UserAccount.objects.filter(deleted_at__isnull=True).order_by(
+            "-created_at"
+        )
 
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in ["create", "list", "retrieve"]:
             permission_classes = [AllowAny]
-        elif self.action in ["list", "partial_update"]:
+        elif self.action == "partial_update":
             permission_classes = [IsAdminUser]
-        elif self.action == "retrieve":
-            permission_classes = [IsAuthenticated]
         elif self.action == "destroy":
             permission_classes = [IsSuperUser]
         else:
@@ -35,13 +40,17 @@ class UserAccountViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return UserAccountCreateSerializer
-        elif self.action in ["list", "partial_update"]:
-            return UserAccountAdminSerializer
+        elif self.action == "list":
+            if self.request.user.is_staff:
+                return UserAccountListAdminSerializer
+            return UserAccountListPublicSerializer
         elif self.action == "retrieve":
             if self.request.user.is_staff:
-                return UserAccountAdminSerializer
-            return UserAccountPublicSerializer
-        return UserAccountPublicSerializer
+                return UserAccountRetrieveAdminSerializer
+            return UserAccountRetrievePublicSerializer
+        elif self.action == "partial_update":
+            return UserAccountPatchSerializer
+        return UserAccountRetrievePublicSerializer
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
