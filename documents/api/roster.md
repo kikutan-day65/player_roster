@@ -1,5 +1,12 @@
 # Endpoints for Player
 
+-   create: `IsAdminUser`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser`
+-   delete: `IsSuperUser`
+-   other: at least `IsAuthenticated`
+
 prefix: `api/v1/`
 
 -   [x] **POST** `players/`
@@ -262,7 +269,16 @@ prefix: `api/v1/`
 -   [x] **DELETE** `players/{id}/comments/{id}/`
         Delete the specific comment on the specific player
 
+---
+
 # Endpoints for Team
+
+-   create: `IsAdminUser`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser`
+-   delete: `IsSuperUser`
+-   other: at least `IsAuthenticated`
 
 prefix: `api/v1/`
 
@@ -472,7 +488,16 @@ prefix: `api/v1/`
 -   [x] **DELETE** `teams/{id}/players/{id}/`
         Delete the specific player on the specific team
 
+---
+
 # Endpoints for Comment
+
+-   create: `IsAuthenticated`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser` or `IsAuthenticatedOwner`
+-   delete: `IsSuperUser` or `IsAuthenticatedOwner`
+-   other: at least `IsAuthenticated`
 
 -   [x] **POST** `comments/`
         Create a new comment
@@ -522,6 +547,10 @@ prefix: `api/v1/`
                     "id": "yyy-yyy-yyy",
                     "name": "Team Name"
                 }
+            },
+            "user": {
+                "id": "aaa-aaa-aaa",
+                "username": "user_name"
             }
         }
     ]
@@ -544,6 +573,10 @@ prefix: `api/v1/`
                     "id": "yyy-yyy-yyy",
                     "name": "Team Name"
                 }
+            },
+            "user": {
+                "id": "aaa-aaa-aaa",
+                "username": "user_name"
             }
         }
     ]
@@ -567,6 +600,10 @@ prefix: `api/v1/`
                 "id": "yyy-yyy-yyy",
                 "name": "Team Name"
             }
+        },
+        "user": {
+            "id": "aaa-aaa-aaa",
+            "username": "user_name"
         }
     }
     ```
@@ -587,6 +624,10 @@ prefix: `api/v1/`
                 "id": "yyy-yyy-yyy",
                 "name": "Team Name"
             }
+        },
+        "user": {
+            "id": "aaa-aaa-aaa",
+            "username": "user_name"
         }
     }
     ```
@@ -596,7 +637,6 @@ prefix: `api/v1/`
     ```json
     // Input
     {
-        "player_id": "xxx-xxx-xxx",
         "body": "Updated Comment Body..."
     }
     ```
