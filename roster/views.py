@@ -2,9 +2,7 @@ from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
-from core.permissions import IsSuperUser
-from roster.serializers.player import PlayerAdminSerializer, PlayerPublicSerializer
-from roster.serializers.team import TeamAdminSerializer, TeamPublicSerializer
+from core.permissions import IsAuthenticatedOwner, IsSuperUser
 
 from .models import Comment, Player, Team
 from .serializers.comment import (
@@ -64,10 +62,13 @@ class TeamViewSet(viewsets.ModelViewSet):
         instance.save(update_fields=["deleted_at"])
 
 
-class TeamViewSet(viewsets.ModelViewSet):
+class PlayerViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
 
-    queryset = Team.objects.filter(deleted_at__isnull=True).order_by("-created_at")
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Player.objects.all().order_by("-created_at")
+        return Player.objects.filter(deleted_at__isnull=True).order_by("-created_at")
 
     def get_permissions(self):
         if self.action in ["create", "partial_update"]:
@@ -81,13 +82,19 @@ class TeamViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.action in ["create", "partial_update"]:
-            return TeamAdminSerializer
-        elif self.action in ["list", "retrieve"]:
+        if self.action == "create":
+            return PlayerCreateSerializer
+        elif self.action == "list":
             if self.request.user.is_staff:
-                return TeamAdminSerializer
-            return TeamPublicSerializer
-        return TeamPublicSerializer
+                return PlayerListAdminSerializer
+            return PlayerListPublicSerializer
+        elif self.action == "retrieve":
+            if self.request.user.is_staff:
+                return PlayerRetrieveAdminSerializer
+            return PlayerRetrievePublicSerializer
+        elif self.action == "partial_update":
+            return PlayerPatchSerializer
+        return PlayerRetrievePublicSerializer
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
