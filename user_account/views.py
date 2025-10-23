@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework import generics, viewsets
+from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
 from core.permissions import IsSuperUser
@@ -9,7 +9,8 @@ from .serializers import (
     UserAccountCreateSerializer,
     UserAccountListAdminSerializer,
     UserAccountListPublicSerializer,
-    UserAccountMeSerializer,
+    UserAccountMePatchSerializer,
+    UserAccountMeRetrieveSerializer,
     UserAccountPatchSerializer,
     UserAccountRetrieveAdminSerializer,
     UserAccountRetrievePublicSerializer,
@@ -59,11 +60,17 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 
 class UserAccountMeViewSet(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ["get", "patch", "delete"]
-    serializer_class = UserAccountMeSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return UserAccountMeRetrieveSerializer
+        elif self.request.method == "PATCH":
+            return UserAccountMePatchSerializer
+        return UserAccountMeRetrieveSerializer
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
