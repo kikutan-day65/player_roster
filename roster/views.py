@@ -24,6 +24,12 @@ from .serializers.team import (
     TeamListRetrieveAdminSerializer,
     TeamListRetrievePublicSerializer,
     TeamPatchSerializer,
+    TeamPlayerCreateSerializer,
+    TeamPlayerListAdminSerializer,
+    TeamPlayerListPublicSerializer,
+    TeamPlayerPatchSerializer,
+    TeamPlayerRetrieveAdminSerializer,
+    TeamPlayerRetrievePublicSerializer,
 )
 
 
@@ -135,6 +141,53 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=["deleted_at"])
+
+
+class TeamPlayerViewSet(viewsets.ModelViewSet):
+    http_method_names = ["post", "get", "patch", "delete"]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Player.objects.filter(team=self.kwargs["team_pk"]).order_by(
+                "-created_at"
+            )
+        return Player.objects.filter(
+            team=self.kwargs["team_pk"], deleted_at__isnull=True
+        ).order_by("-created_at")
+
+    def get_permissions(self):
+        if self.action in ["create", "partial_update"]:
+            permission_classes = [IsAdminUser]
+        elif self.action in ["list", "retrieve"]:
+            permission_classes = [AllowAny]
+        elif self.action == "destroy":
+            permission_classes = [IsSuperUser]
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return TeamPlayerCreateSerializer
+        elif self.action == "list":
+            if self.request.user.is_staff:
+                return TeamPlayerListAdminSerializer
+            return TeamPlayerListPublicSerializer
+        elif self.action == "retrieve":
+            if self.request.user.is_staff:
+                return TeamPlayerRetrieveAdminSerializer
+            return TeamPlayerRetrievePublicSerializer
+        elif self.action == "partial_update":
+            return TeamPlayerPatchSerializer
+        return TeamPlayerRetrievePublicSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(team=self.kwargs["team_pk"])
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
