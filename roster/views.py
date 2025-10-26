@@ -12,6 +12,10 @@ from .serializers.comment import (
     CommentPatchSerializer,
 )
 from .serializers.player import (
+    PlayerCommentCreateSerializer,
+    PlayerCommentListRetrieveAdminSerializer,
+    PlayerCommentListRetrievePublicSerializer,
+    PlayerCommentPatchSerializer,
     PlayerCreateSerializer,
     PlayerListAdminSerializer,
     PlayerListPublicSerializer,
@@ -188,6 +192,50 @@ class TeamPlayerViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(team=self.kwargs["team_pk"])
+
+    def perform_destroy(self, instance):
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=["deleted_at"])
+
+
+class PlayerCommentViewSet(viewsets.ModelViewSet):
+    http_method_names = ["post", "get", "patch", "delete"]
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Comment.objects.filter(player=self.kwargs["player_pk"]).order_by(
+                "-created_at"
+            )
+        return Comment.objects.filter(
+            player=self.kwargs["player_pk"], deleted_at__isnull=True
+        ).order_by("-created_at")
+
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated]
+        elif self.action in ["list", "retrieve"]:
+            permission_classes = [AllowAny]
+        elif self.action == "partial_update":
+            permission_classes = [IsAdminUser | IsAuthenticatedOwner]
+        elif self.action == "destroy":
+            permission_classes = [IsSuperUser | IsAuthenticatedOwner]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return PlayerCommentCreateSerializer
+        elif self.action in ["list", "retrieve"]:
+            if self.request.user.is_staff:
+                return PlayerCommentListRetrieveAdminSerializer
+            return PlayerCommentListRetrievePublicSerializer
+        elif self.action == "partial_update":
+            return PlayerCommentPatchSerializer
+        return PlayerCommentListRetrievePublicSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user, player=self.kwargs["player_pk"])
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
