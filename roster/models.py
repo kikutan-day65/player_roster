@@ -116,6 +116,9 @@ class Comment(models.Model):
         help_text=_("Timestamp of when the comment was deleted"),
     )
 
+    def __str__(self):
+        return self.body[:100] + "..." if len(self.body) > 100 else self.body
+
 
 class Favorite(models.Model):
     id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
