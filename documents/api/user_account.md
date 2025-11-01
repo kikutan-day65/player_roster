@@ -1,5 +1,12 @@
 # Endpoints for UserAccount
 
+-   create: `AllowAny`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser`
+-   delete: `IsSuperUser`
+-   other: at least `IsAuthenticated`
+
 prefix: `api/v1/`
 
 -   [x] **POST** `user-accounts/`
@@ -64,23 +71,6 @@ prefix: `api/v1/`
         "id": "aaa-aaa-aaa",
         "username": "user_name",
         "created_at": "YYYY-MM-DD",
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "updated_at": "YYYY-MM-DD",
-                "player": {
-                    "id": "xxx-xxx-xxx",
-                    "first_name": "FirstName",
-                    "last_name": "LastName",
-                    "team": {
-                        "id": "yyy-yyy-yyy",
-                        "name": "Team Name"
-                    }
-                }
-            }
-        ]
     }
     ```
 
@@ -95,24 +85,7 @@ prefix: `api/v1/`
         "is_active": "bool",
         "created_at": "YYYY-MM-DD",
         "updated_at": "YYYY-MM-DD",
-        "deleted_at": "YYYY-MM-DD",
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "updated_at": "YYYY-MM-DD",
-                "player": {
-                    "id": "xxx-xxx-xxx",
-                    "first_name": "FirstName",
-                    "last_name": "LastName",
-                    "team": {
-                        "id": "yyy-yyy-yyy",
-                        "name": "Team Name"
-                    }
-                }
-            }
-        ]
+        "deleted_at": "YYYY-MM-DD"
     }
     ```
 
@@ -147,7 +120,15 @@ prefix: `api/v1/`
 
 ---
 
--   [x] **GET** `user-accounts/{id}/comments/`
+## Endpoint for UserAccountComment
+
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser` or `IsAuthenticatedOwner`
+-   delete: `IsSuperUser` or `IsAuthenticatedOwner`
+-   other: at least `IsAuthenticated`
+
+-   [x] **GET** `user-accounts/{user_pk}/comments/`
         Get the list of comments on the specific user
 
     ```json
@@ -193,7 +174,7 @@ prefix: `api/v1/`
     ]
     ```
 
--   [x] **GET** `user-accounts/{id}/comments/{id}/`
+-   [x] **GET** `user-accounts/{user_pk}/comments/{id}/`
         Get the specific comment on the specific user
 
     ```json
@@ -235,7 +216,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **PATCH** `user-accounts/{id}/comments/{id}/`
+-   [x] **PATCH** `user-accounts/{user_pk}/comments/{id}/`
         Change the specific comment on the specific user
 
     ```json
@@ -264,10 +245,17 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **DELETE** `user-accounts/{id}/comments/{id}/`
+-   [x] **DELETE** `user-accounts/{user_pk}/comments/{id}/`
         Delete the specific comment on the specific user
 
+---
+
 # Endpoints for Current UserAccount
+
+-   retrieve: `IsAuthenticated`
+-   partial_update: `IsAuthenticated`
+-   delete: `IsAuthenticated`
+-   other: at least `IsAuthenticated`
 
 -   [x] **GET** `user-accounts/me/`
         Get the current user
@@ -279,24 +267,7 @@ prefix: `api/v1/`
         "username": "user_name",
         "email": "email@sample.com",
         "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "updated_at": "YYYY-MM-DD",
-                "player": {
-                    "id": "xxx-xxx-xxx",
-                    "first_name": "FirstName",
-                    "last_name": "LastName",
-                    "team": {
-                        "id": "yyy-yyy-yyy",
-                        "name": "Team Name"
-                    }
-                }
-            }
-        ]
+        "updated_at": "YYYY-MM-DD"
     }
     ```
 
@@ -318,24 +289,7 @@ prefix: `api/v1/`
         "username": "user_name",
         "email": "email@sample.com",
         "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "updated_at": "YYYY-MM-DD",
-                "player": {
-                    "id": "xxx-xxx-xxx",
-                    "first_name": "FirstName",
-                    "last_name": "LastName",
-                    "team": {
-                        "id": "yyy-yyy-yyy",
-                        "name": "Team Name"
-                    }
-                }
-            }
-        ]
+        "updated_at": "YYYY-MM-DD"
     }
     ```
 
@@ -343,6 +297,13 @@ prefix: `api/v1/`
         Delete the current user
 
 ---
+
+## Endpoint for UserAccountMeComment
+
+-   retrieve: `IsAuthenticated`
+-   partial_update: `IsAuthenticated`
+-   delete: `IsAuthenticated`
+-   other: at least `IsAuthenticated`
 
 -   [x] **GET** `user-accounts/me/comments/`
         Get the list of comments on the current user

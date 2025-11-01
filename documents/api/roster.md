@@ -83,18 +83,7 @@ prefix: `api/v1/`
         "team": {
             "id": "yyy-yyy-yyy",
             "name": "Team Name"
-        },
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "user": {
-                    "id": "aaa-aaa-aaa",
-                    "username": "user_name"
-                }
-            }
-        ]
+        }
     }
     ```
 
@@ -110,18 +99,7 @@ prefix: `api/v1/`
         "team": {
             "id": "yyy-yyy-yyy",
             "name": "Team Name"
-        },
-        "comments": [
-            {
-                "id": "zzz-zzz-zzz",
-                "body": "Comment Body...",
-                "created_at": "YYYY-MM-DD",
-                "user": {
-                    "id": "aaa-aaa-aaa",
-                    "username": "user_name"
-                }
-            }
-        ]
+        }
     }
     ```
 
@@ -157,7 +135,16 @@ prefix: `api/v1/`
 
 ---
 
--   [x] **POST** `players/{id}/comments/`
+## Endpoint for PlayerComment
+
+-   create: `IsAuthenticated`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser` or `IsAuthenticatedOwner`
+-   delete: `IsSuperUser` or `IsAuthenticatedOwner`
+-   other: at least `IsAuthenticated`
+
+-   [x] **POST** `players/{player_pk}/comments/`
         Create a new comment on the specific player
 
     ```json
@@ -185,7 +172,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **GET** `players/{id}/comments/`
+-   [x] **GET** `players/{player_pk}/comments/`
         Get all comments on the specific player
 
     ```json
@@ -213,7 +200,7 @@ prefix: `api/v1/`
     ]
     ```
 
--   [x] **GET** `players/{id}/comments/{id}/`
+-   [x] **GET** `players/{player_pk}/comments/{id}/`
         Get the specific comment on the specific player
 
     ```json
@@ -237,7 +224,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **PATCH** `players/{id}/comments/{id}/`
+-   [x] **PATCH** `players/{player_pk}/comments/{id}/`
         Change the specific comment on the specific player
 
     ```json
@@ -266,7 +253,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **DELETE** `players/{id}/comments/{id}/`
+-   [x] **DELETE** `players/{player_pk}/comments/{id}/`
         Delete the specific comment on the specific player
 
 ---
@@ -382,7 +369,16 @@ prefix: `api/v1/`
 
 ---
 
--   [x] **POST** `teams/{id}/players/`
+## Endpoint for TeamPlayer
+
+-   create: `IsAdminUser`
+-   list: `AllowAny`
+-   retrieve: `AllowAny`
+-   partial_update: `IsAdminUser`
+-   delete: `IsSuperUser`
+-   other: at least `IsAuthenticated`
+
+-   [x] **POST** `teams/{team_pk}/players/`
         Create a new player on the specific team
 
     ```json
@@ -407,7 +403,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **GET** `teams/{id}/players/`
+-   [x] **GET** `teams/{team_pk}/players/`
         Get the list of players on the specific team
 
     ```json
@@ -435,7 +431,7 @@ prefix: `api/v1/`
     ]
     ```
 
--   [x] **GET** `teams/{id}/players/{id}/`
+-   [x] **GET** `teams/{team_pk}/players/{id}/`
         Get the specific player on the specific team
 
     ```json
@@ -459,7 +455,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **PATCH** `teams/{id}/players/{id}/`
+-   [x] **PATCH** `teams/{team_pk}/players/{id}/`
         Change the specific player information on the specific team
 
     ```json
@@ -485,7 +481,7 @@ prefix: `api/v1/`
     }
     ```
 
--   [x] **DELETE** `teams/{id}/players/{id}/`
+-   [x] **DELETE** `teams/{team_pk}/players/{id}/`
         Delete the specific player on the specific team
 
 ---
@@ -637,6 +633,7 @@ prefix: `api/v1/`
     ```json
     // Input
     {
+        "player_id": "xxx-xxx-xxx",
         "body": "Updated Comment Body..."
     }
     ```
@@ -644,7 +641,7 @@ prefix: `api/v1/`
     // Output
     {
         "id": "zzz-zzz-zzz",
-        "body": "Comment Body...",
+        "body": "Updated Comment Body...",
         "created_at": "YYYY-MM-DD",
         "updated_at": "YYYY-MM-DD",
         "player": {
