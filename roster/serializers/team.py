@@ -1,35 +1,94 @@
 from rest_framework import serializers
 
-from roster.models import Team
+from core.nested_serializers import (
+    CommentNestedForPlayerSerializer,
+    TeamNestedSerializer,
+)
+from roster.models import Player, Team
 
 
-class TeamPublicSerializer(serializers.ModelSerializer):
-    """
-    {
-        "id": "uuid-wwww-vvvv",
-        "name": "Sample Team",
-        "sport": "baseball"
-    }
-    """
+# ==================================================
+# Team
+# ==================================================
+class TeamCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["id", "name", "sport", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
+
+class TeamListRetrievePublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ["id", "name", "sport"]
+        read_only_fields = ["id", "name", "sport"]
 
 
-class TeamAdminSerializer(serializers.ModelSerializer):
-    """
-    {
-        "id": "uuid-wwww-vvvv",
-        "name": "Sample Team",
-        "sport": "baseball"
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "deleted_at": "YYYY-MM-DD"
-    }
-    """
-
+class TeamListRetrieveAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
         fields = ["id", "name", "sport", "created_at", "updated_at", "deleted_at"]
+        read_only_fields = [
+            "id",
+            "name",
+            "sport",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
+
+
+class TeamPatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Team
+        fields = ["id", "name", "sport", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+# ==================================================
+# TeamPlayer
+# ==================================================
+class TeamPlayerCreateSerializer(serializers.ModelSerializer):
+    team = TeamNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ["id", "first_name", "last_name", "created_at", "team"]
+        read_only_fields = ["id", "created_at"]
+
+
+class TeamPlayerListRetrievePublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ["id", "first_name", "last_name"]
+        read_only_fields = ["id", "first_name", "last_name"]
+
+
+class TeamPlayerListRetrieveAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
+        read_only_fields = [
+            "id",
+            "first_name",
+            "last_name",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
+
+
+class TeamPlayerPatchSerializer(serializers.ModelSerializer):
+    team = TeamNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ["id", "first_name", "last_name", "created_at", "updated_at", "team"]
+        read_only_fields = ["id", "created_at", "updated_at", "team"]
