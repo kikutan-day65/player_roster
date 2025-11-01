@@ -4,6 +4,9 @@ from core.nested_serializers import PlayerNestedSerializer, UserAccountNestedSer
 from roster.models import Comment, Player
 
 
+# ==================================================
+# Comment
+# ==================================================
 class CommentCreateSerializer(serializers.ModelSerializer):
     player_id = serializers.PrimaryKeyRelatedField(
         source="player",  # field name (FK) on Comment model

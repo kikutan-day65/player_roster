@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
-from roster.models import Comment, Player, Team
+from roster.models import Player, Team
 from user_account.models import UserAccount
 
 
 class TeamNestedSerializer(serializers.ModelSerializer):
     """
     {
-        "id": "zzz-zzz-zzz",
-        "name": "Sample Team"
+        "id": "yyy-yyy-yyy",
+        "name": "Team Name"
     }
     """
 
@@ -20,12 +20,12 @@ class TeamNestedSerializer(serializers.ModelSerializer):
 class PlayerNestedSerializer(serializers.ModelSerializer):
     """
     {
-        "id": "lll-mmm-nnn",
-        "first_name": "Player_first_name",
-        "last_name": "Player_last_name",
-        "team" : {
-            "id": "zzz-zzz-zzz",
-            "name": "Sample Team"
+        "id": "xxx-xxx-xxx",
+        "first_name": "FirstName",
+        "last_name": "LastName",
+        "team": {
+            "id": "yyy-yyy-yyy",
+            "name": "Team Name"
         }
     }
     """
@@ -40,56 +40,11 @@ class PlayerNestedSerializer(serializers.ModelSerializer):
 class UserAccountNestedSerializer(serializers.ModelSerializer):
     """
     {
-        "id": "xxx-xxx-xxx",
-        "username": "john_doe"
+        "id": "aaa-aaa-aaa",
+        "username": "user_name"
     }
     """
 
     class Meta:
         model = UserAccount
         fields = ["id", "username"]
-
-
-class CommentNestedForUserAccountSerializer(serializers.ModelSerializer):
-    """
-    {
-        "id": "yyy-yyy-yyy",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "player": {
-            "id": "lll-mmm-nnn",
-            "first_name": "Player_first_name",
-            "last_name": "Player_last_name",
-            "team" : {
-                "id": "zzz-zzz-zzz",
-                "name": "Sample Team"
-            }
-        }
-    }
-    """
-
-    player = PlayerNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ["id", "body", "created_at", "player"]
-
-
-class CommentNestedForPlayerSerializer(serializers.ModelSerializer):
-    """
-    {
-        "id": "yyy-yyy-yyy",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "user": {
-            "id": "aaa-aaa-aaa",
-            "username": "john_doe"
-        }
-    }
-    """
-
-    user = UserAccountNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ["id", "body", "created_at", "user"]
