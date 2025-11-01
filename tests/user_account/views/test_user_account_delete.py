@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from django.urls import reverse
 
@@ -51,3 +53,13 @@ def test_fails_to_delete_user_by_unauthenticated_user(api_client):
     response = api_client.delete(url)
 
     assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_fails_to_delete_nonexistent_user(api_client, super_user):
+    nonexistent_user = uuid4()
+    url = reverse("user_account-detail", kwargs={"pk": nonexistent_user})
+    api_client.force_authenticate(user=super_user)
+    response = api_client.delete(url)
+
+    assert response.status_code == 404

@@ -10,9 +10,9 @@ from django.urls import reverse
     [("first_name", "updated first name"), ("last_name", "updated last name")],
 )
 def test_successes_to_change_player_first_name_last_name(
-    api_client, test_players, admin_user, field, data
+    api_client, test_players, admin_user, test_comments, field, data
 ):
-    expected_fields = {
+    player_fields = {
         "id",
         "team",
         "first_name",
@@ -20,15 +20,11 @@ def test_successes_to_change_player_first_name_last_name(
         "created_at",
         "updated_at",
         "deleted_at",
+        "comments",
     }
-    expected_fields_for_team = {
-        "id",
-        "name",
-        "sport",
-        "created_at",
-        "updated_at",
-        "deleted_at",
-    }
+    comment_fields = {"id", "body", "created_at", "user"}
+    user_fields = {"id", "username"}
+    team_fields = {"id", "name"}
 
     api_client.force_authenticate(admin_user)
     url = reverse("player-detail", kwargs={"pk": test_players[0].id})
@@ -39,15 +35,25 @@ def test_successes_to_change_player_first_name_last_name(
 
     assert response.status_code == 200
     assert response.data[field] == data
-    assert set(response.data.keys()) == expected_fields
-    assert set(response.data["team"].keys()) == expected_fields_for_team
+
+    player_data = response.data
+    assert set(player_data.keys()) == player_fields
+
+    comment_data = player_data["comments"][0]
+    assert set(comment_data.keys()) == comment_fields
+
+    user_data = comment_data["user"]
+    assert set(user_data.keys()) == user_fields
+
+    team_data = player_data["team"]
+    assert set(team_data.keys()) == team_fields
 
 
 @pytest.mark.django_db
 def test_successes_to_change_player_team(
-    api_client, test_players, admin_user, test_teams
+    api_client, test_players, admin_user, test_teams, test_comments
 ):
-    expected_fields = {
+    player_fields = {
         "id",
         "team",
         "first_name",
@@ -55,15 +61,12 @@ def test_successes_to_change_player_team(
         "created_at",
         "updated_at",
         "deleted_at",
+        "comments",
     }
-    expected_fields_for_team = {
-        "id",
-        "name",
-        "sport",
-        "created_at",
-        "updated_at",
-        "deleted_at",
-    }
+    comment_fields = {"id", "body", "created_at", "user"}
+    user_fields = {"id", "username"}
+    team_fields = {"id", "name"}
+
     api_client.force_authenticate(admin_user)
     url = reverse("player-detail", kwargs={"pk": test_players[0].id})
 
@@ -72,11 +75,20 @@ def test_successes_to_change_player_team(
     response = api_client.patch(url, change_data)
 
     assert response.status_code == 200
-    assert response.data["team"]["id"] == str(test_teams[1].id)
-    assert response.data["team"]["name"] == test_teams[1].name
-    assert response.data["team"]["sport"] == test_teams[1].sport
-    assert set(response.data.keys()) == expected_fields
-    assert set(response.data["team"].keys()) == expected_fields_for_team
+
+    player_data = response.data
+    assert set(player_data.keys()) == player_fields
+
+    comment_data = player_data["comments"][0]
+    assert set(comment_data.keys()) == comment_fields
+
+    user_data = comment_data["user"]
+    assert set(user_data.keys()) == user_fields
+
+    team_data = player_data["team"]
+    assert team_data["id"] == str(test_teams[1].id)
+    assert team_data["name"] == test_teams[1].name
+    assert set(team_data.keys()) == team_fields
 
 
 @pytest.mark.django_db
@@ -137,7 +149,7 @@ def test_fails_to_change_player_information_with_nonexistent_team(
 def test_successes_to_change_team_name_sport(
     api_client, test_teams, admin_user, field, data
 ):
-    expected_fields = {
+    team_fields = {
         "id",
         "name",
         "sport",
@@ -155,7 +167,9 @@ def test_successes_to_change_team_name_sport(
 
     assert response.status_code == 200
     assert response.data[field] == data
-    assert set(response.data.keys()) == expected_fields
+
+    team_data = response.data
+    assert set(team_data.keys()) == team_fields
 
 
 @pytest.mark.django_db

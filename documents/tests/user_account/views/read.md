@@ -5,7 +5,7 @@
 Admin user can get the list of all users
 
 -   [x] status code: 200
--   [x] response list length is 2
+-   [x] response list length is 3
 -   [x] response is valid format of its serializer
 
 ### Negative cases
@@ -22,16 +22,25 @@ Unauthenticated user cannot get the list of all users
 
 ### Positive cases
 
-Authenticated users can get the information of the specific users
+Admin users can get the information of the specific user
+
+-   [x] status code: 200
+-   [x] response is valid format of its serializer
+
+Authenticated users can get the information of the specific user
 
 -   [x] status code: 200
 -   [x] response is valid format of its serializer
 
 ### Negative cases
 
-Unauthenticated user cannot get the information of the specific users
+Unauthenticated user cannot get the information of the specific user
 
 -   [x] status code: 401
+
+Cannot get the information of nonexistent user
+
+-   [x] status code: 404
 
 ## GET `api/v1/user-accounts/me/`
 

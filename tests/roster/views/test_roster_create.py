@@ -4,7 +4,7 @@ from django.urls import reverse
 
 @pytest.mark.django_db
 def test_player_creation_success(api_client, test_player_data, admin_user):
-    expected_fields = {
+    player_fields = {
         "id",
         "team",
         "first_name",
@@ -12,15 +12,10 @@ def test_player_creation_success(api_client, test_player_data, admin_user):
         "created_at",
         "updated_at",
         "deleted_at",
+        "comments",
+        "team",
     }
-    expected_fields_for_team = {
-        "id",
-        "name",
-        "sport",
-        "created_at",
-        "updated_at",
-        "deleted_at",
-    }
+    team_fields = {"id", "name"}
 
     api_client.force_authenticate(admin_user)
 
@@ -28,11 +23,16 @@ def test_player_creation_success(api_client, test_player_data, admin_user):
     response = api_client.post(url, data=test_player_data)
 
     assert response.status_code == 201
-    assert response.data["first_name"] == test_player_data["first_name"]
-    assert response.data["last_name"] == test_player_data["last_name"]
-    assert response.data["team"]["id"] == test_player_data["team_id"]
-    assert set(response.data.keys()) == expected_fields
-    assert set(response.data["team"].keys()) == expected_fields_for_team
+
+    player_data = response.data
+    assert player_data["first_name"] == test_player_data["first_name"]
+    assert player_data["last_name"] == test_player_data["last_name"]
+    assert len(player_data["comments"]) == 0
+    assert set(player_data.keys()) == player_fields
+
+    team_data = player_data["team"]
+    assert team_data["id"] == test_player_data["team_id"]
+    assert set(team_data.keys()) == team_fields
 
 
 @pytest.mark.django_db
@@ -81,7 +81,7 @@ def test_player_creation_fails_without_required_fields(
 
 @pytest.mark.django_db
 def test_team_creation_success(api_client, test_team_data, admin_user):
-    expected_fields = {
+    team_fields = {
         "id",
         "name",
         "sport",
@@ -96,9 +96,11 @@ def test_team_creation_success(api_client, test_team_data, admin_user):
     response = api_client.post(url, data=test_team_data)
 
     assert response.status_code == 201
-    assert response.data["name"] == test_team_data["name"]
-    assert response.data["sport"] == test_team_data["sport"]
-    assert set(response.data.keys()) == expected_fields
+
+    team_data = response.data
+    assert team_data["name"] == test_team_data["name"]
+    assert team_data["sport"] == test_team_data["sport"]
+    assert set(team_data.keys()) == team_fields
 
 
 @pytest.mark.django_db

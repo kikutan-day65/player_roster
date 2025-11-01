@@ -2,7 +2,7 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from roster.models import Player, Team
+from roster.models import Comment, Player, Team
 from user_account.models import UserAccount
 
 
@@ -84,3 +84,18 @@ def test_players(test_teams):
         ),
     ]
     return players
+
+
+@pytest.fixture
+def test_comments(test_user, test_user_2, test_players):
+    return [
+        Comment.objects.create(
+            body="Comment_body", player=test_players[0], user=test_user
+        ),
+        Comment.objects.create(
+            body="Comment_body", player=test_players[1], user=test_user_2
+        ),
+        Comment.objects.create(
+            body="Comment_body", player=test_players[1], user=test_user
+        ),
+    ]

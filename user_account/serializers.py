@@ -1,14 +1,20 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
+from core.nested_serializers import PlayerNestedSerializer
+from roster.models import Comment
+
 from .models import UserAccount
 
 
+# ==================================================
+# UserAccount
+# ==================================================
 class UserAccountCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ["id", "username", "email", "password", "created_at", "updated_at"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        fields = ["id", "username", "email", "password", "created_at"]
+        read_only_fields = ["id", "created_at"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
@@ -25,7 +31,14 @@ class UserAccountCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserAccountListSerializer(serializers.ModelSerializer):
+class UserAccountListRetrievePublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ["id", "username", "created_at"]
+        read_only_fields = ["id", "username", "created_at"]
+
+
+class UserAccountListRetrieveAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
         fields = [
@@ -39,16 +52,110 @@ class UserAccountListSerializer(serializers.ModelSerializer):
             "updated_at",
             "deleted_at",
         ]
+        read_only_fields = [
+            "id",
+            "username",
+            "email",
+            "is_superuser",
+            "is_staff",
+            "is_active",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
 
 
-class UserAccountRetrieveSerializer(serializers.ModelSerializer):
+class UserAccountPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
-        fields = ["id", "username", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "username",
+            "email",
+            "is_superuser",
+            "is_staff",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "id",
+            "is_superuser",
+            "is_staff",
+            "created_at",
+            "updated_at",
+        ]
 
 
-class UserAccountSerializer(serializers.ModelSerializer):
+# ==================================================
+# UserAccountComment
+# ==================================================
+class UserAccountCommentListRetrievePublicSerializer(serializers.ModelSerializer):
+    player = PlayerNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "body", "created_at", "updated_at", "player"]
+
+
+class UserAccountCommentListRetrieveAdminSerializer(serializers.ModelSerializer):
+    player = PlayerNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "body", "created_at", "updated_at", "deleted_at", "player"]
+        read_only_fields = [
+            "id",
+            "body",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+            "player",
+        ]
+
+
+class UserAccountCommentPatchSerializer(serializers.ModelSerializer):
+    player = PlayerNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "body", "created_at", "updated_at", "player"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+# ==================================================
+# Me
+# ==================================================
+class MeRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ["id", "username", "email", "created_at", "updated_at"]
+        read_only_fields = ["id", "username", "email", "created_at", "updated_at"]
+
+
+class MePatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
         fields = ["id", "username", "email", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+# ==================================================
+# MeComment
+# ==================================================
+class MeCommentListRetrieveSerializer(serializers.ModelSerializer):
+    player = PlayerNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "body", "created_at", "updated_at", "player"]
+        read_only_fields = ["id", "body", "created_at", "updated_at", "player"]
+
+
+class MeCommentPatchSerializer(serializers.ModelSerializer):
+    player = PlayerNestedSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ["id", "body", "created_at", "updated_at", "player"]
+        read_only_fields = ["id", "created_at", "updated_at", "player"]

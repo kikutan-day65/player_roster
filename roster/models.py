@@ -3,7 +3,7 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from core.validators import only_letters_validator
+from core.validators import only_letters_numerics_validator, only_letters_validator
 
 
 class Player(models.Model):
@@ -61,7 +61,7 @@ class Team(models.Model):
         _("team_name"),
         max_length=150,
         help_text=_("Required. 150 characters or fewer. Letters only."),
-        validators=[only_letters_validator],
+        validators=[only_letters_numerics_validator],
     )
     created_at = models.DateTimeField(
         _("created at"),
@@ -115,6 +115,9 @@ class Comment(models.Model):
         blank=True,
         help_text=_("Timestamp of when the comment was deleted"),
     )
+
+    def __str__(self):
+        return self.body[:100] + "..." if len(self.body) > 100 else self.body
 
 
 class Favorite(models.Model):
