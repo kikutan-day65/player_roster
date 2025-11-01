@@ -17,11 +17,9 @@ from .serializers.player import (
     PlayerCommentListRetrievePublicSerializer,
     PlayerCommentPatchSerializer,
     PlayerCreateSerializer,
-    PlayerListAdminSerializer,
-    PlayerListPublicSerializer,
+    PlayerListRetrieveAdminSerializer,
+    PlayerListRetrievePublicSerializer,
     PlayerPatchSerializer,
-    PlayerRetrieveAdminSerializer,
-    PlayerRetrievePublicSerializer,
 )
 from .serializers.team import (
     TeamCreateSerializer,
@@ -29,11 +27,9 @@ from .serializers.team import (
     TeamListRetrievePublicSerializer,
     TeamPatchSerializer,
     TeamPlayerCreateSerializer,
-    TeamPlayerListAdminSerializer,
-    TeamPlayerListPublicSerializer,
+    TeamPlayerListRetrieveAdminSerializer,
+    TeamPlayerListRetrievePublicSerializer,
     TeamPlayerPatchSerializer,
-    TeamPlayerRetrieveAdminSerializer,
-    TeamPlayerRetrievePublicSerializer,
 )
 
 
@@ -94,17 +90,13 @@ class PlayerViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return PlayerCreateSerializer
-        elif self.action == "list":
+        elif self.action in ["list", "retrieve"]:
             if self.request.user.is_staff:
-                return PlayerListAdminSerializer
-            return PlayerListPublicSerializer
-        elif self.action == "retrieve":
-            if self.request.user.is_staff:
-                return PlayerRetrieveAdminSerializer
-            return PlayerRetrievePublicSerializer
+                return PlayerListRetrieveAdminSerializer
+            return PlayerListRetrievePublicSerializer
         elif self.action == "partial_update":
             return PlayerPatchSerializer
-        return PlayerRetrievePublicSerializer
+        return PlayerListRetrievePublicSerializer
 
     def perform_destroy(self, instance):
         instance.deleted_at = timezone.now()
@@ -178,17 +170,13 @@ class TeamPlayerViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return TeamPlayerCreateSerializer
-        elif self.action == "list":
+        elif self.action in ["list", "retrieve"]:
             if self.request.user.is_staff:
-                return TeamPlayerListAdminSerializer
-            return TeamPlayerListPublicSerializer
-        elif self.action == "retrieve":
-            if self.request.user.is_staff:
-                return TeamPlayerRetrieveAdminSerializer
-            return TeamPlayerRetrievePublicSerializer
+                return TeamPlayerListRetrieveAdminSerializer
+            return TeamPlayerListRetrievePublicSerializer
         elif self.action == "partial_update":
             return TeamPlayerPatchSerializer
-        return TeamPlayerRetrievePublicSerializer
+        return TeamPlayerListRetrievePublicSerializer
 
     def perform_create(self, serializer):
         serializer.save(team=self.kwargs["team_pk"])
