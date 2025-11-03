@@ -12,6 +12,8 @@ class UserAccountManager(BaseUserManager):
             raise ValueError("The given username must be set")
         if not email:
             raise ValueError("The given email must be set")
+        if not password:
+            raise ValueError("The given password must be set")
         email = self.normalize_email(email)
         # Lookup the real model class from the global app registry so this
         # manager method can be used in migrations. This is fine because
@@ -33,6 +35,10 @@ class UserAccountManager(BaseUserManager):
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
+        if extra_fields.get("is_superuser"):
+            raise ValueError(
+                "Cannot create superuser via create_user(). Use create_superuser() instead."
+            )
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)
