@@ -55,8 +55,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return UserAccountListRetrieveAdminSerializer
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class UserAccountCommentViewSet(viewsets.ModelViewSet):
