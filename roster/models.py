@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.validators import only_letters_numerics_validator, only_letters_validator
@@ -46,6 +47,15 @@ class Player(models.Model):
     def __str__(self):
         return self.first_name + self.last_name
 
+    def soft_delete(self):
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["deleted_at"])
+
+    @property
+    def is_deleted(self):
+        """Whether the player is logically deleted."""
+        return self.deleted_at is not None
+
 
 class Team(models.Model):
     class SportChoice(models.TextChoices):
@@ -83,6 +93,15 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+    def soft_delete(self):
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["deleted_at"])
+
+    @property
+    def is_deleted(self):
+        """Whether the team is logically deleted."""
+        return self.deleted_at is not None
+
 
 class Comment(models.Model):
     id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
@@ -118,6 +137,15 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.body[:100] + "..." if len(self.body) > 100 else self.body
+
+    def soft_delete(self):
+        self.deleted_at = timezone.now()
+        self.save(update_fields=["deleted_at"])
+
+    @property
+    def is_deleted(self):
+        """Whether the comment is logically deleted."""
+        return self.deleted_at is not None
 
 
 class Favorite(models.Model):
