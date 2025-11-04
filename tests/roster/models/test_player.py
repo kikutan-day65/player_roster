@@ -36,6 +36,17 @@ def test_fails_to_create_player_without_required_fields(missing_field, player_da
 def test_fails_to_create_player_by_max_length_constraint_violation(
     target_field, player_data
 ):
+    player_data[target_field] = "a" * 200
+
+    invalid_team = Player(**player_data)
+
+    with pytest.raises(ValidationError):
+        invalid_team.full_clean()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("target_field", ["first_name", "last_name"])
+def test_fails_to_create_player_by_validator_violation(target_field, player_data):
     player_data[target_field] = "12345"
     invalid_user = Player(**player_data)
 
