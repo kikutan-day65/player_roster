@@ -1,5 +1,4 @@
 import pytest
-from django.utils import timezone
 from rest_framework.test import APIClient
 
 from roster.models import Comment, Player, Team
@@ -12,90 +11,134 @@ def api_client():
 
 
 @pytest.fixture
-def test_user_data():
+def general_user_data():
     return {
-        "username": "test_user",
-        "email": "test_user@example.com",
-        "password": "testuser123",
+        "username": "general_user",
+        "email": "general_user@example.com",
+        "password": "generalUser123",
     }
 
 
 @pytest.fixture
-def test_user(db):
+def general_user(db):
     return UserAccount.objects.create_user(
-        username="test_user", email="test_user@example.com", password="testuser123"
+        username="general_user",
+        email="general_user@example.com",
+        password="generalUser123",
     )
 
 
 @pytest.fixture
-def test_user_2(db):
+def general_user_2(db):
     return UserAccount.objects.create_user(
-        username="test_user_2", email="test_user_2@example.com", password="testuser123"
+        username="general_user_2",
+        email="general_user_2@example.com",
+        password="generalUser123",
     )
+
+
+@pytest.fixture
+def admin_user_data():
+    return {
+        "username": "admin_user",
+        "email": "admin_user@example.com",
+        "password": "adminUser123",
+        "is_staff": True,
+    }
 
 
 @pytest.fixture
 def admin_user(db):
     return UserAccount.objects.create_user(
-        username="admin", email="admin@example.com", password="admin123", is_staff=True
+        username="admin_user",
+        email="admin_user@example.com",
+        password="adminUser123",
+        is_staff=True,
     )
+
+
+@pytest.fixture
+def super_user_data():
+    return {
+        "username": "super_user",
+        "email": "super_user@example.com",
+        "password": "superUser123",
+        "is_staff": True,
+        "is_superuser": True,
+    }
 
 
 @pytest.fixture
 def super_user(db):
     return UserAccount.objects.create_superuser(
-        username="super", email="super@example.com", password="super123"
+        username="super_user",
+        email="super_user@example.com",
+        password="superUser123",
     )
 
 
 @pytest.fixture
-def test_team_data(db):
-    return {"name": "John", "sport": "baseball"}
+def team_data():
+    return {"name": "Team Name", "sport": "baseball"}
 
 
 @pytest.fixture
-def test_teams(db):
-    teams = [
-        Team.objects.create(name="Test Team", sport="baseball"),
-        Team.objects.create(name="Test Team 2", sport="basketball"),
+def teams(db):
+    return [
+        Team.objects.create(name="Team Name", sport="baseball"),
+        Team.objects.create(name="Team Name 2", sport="basketball"),
     ]
-    return teams
 
 
 @pytest.fixture
-def test_player_data(test_teams):
-    return {"first_name": "John", "last_name": "Doe", "team_id": str(test_teams[0].id)}
+def player_data(teams):
+    return {
+        "first_name": "FirstName",
+        "last_name": "LastName",
+        "team_id": str(teams[0].id),
+    }
 
 
 @pytest.fixture
-def test_players(test_teams):
-    players = [
+def players(db, teams):
+    return [
         Player.objects.create(
-            first_name="John", last_name="Doe", team_id=str(test_teams[0].id)
+            first_name="FirstNameOne",
+            last_name="LastNameOne",
+            team_id=str(
+                teams[0].id,
+            ),
         ),
         Player.objects.create(
-            first_name="Jane", last_name="Doe", team_id=str(test_teams[0].id)
-        ),
-        Player.objects.create(
-            first_name="Deleted",
-            last_name="User",
-            team_id=str(test_teams[0].id),
-            deleted_at=timezone.now(),
+            first_name="FirstNameTwo",
+            last_name="LastNameTwo",
+            team_id=str(
+                teams[0].id,
+            ),
         ),
     ]
-    return players
 
 
 @pytest.fixture
-def test_comments(test_user, test_user_2, test_players):
+def comment_data(general_user, players):
+    return {
+        "user": general_user,
+        "player": players[0],
+        "body": "Comment Body",
+    }
+
+
+@pytest.fixture
+def comments(db, general_user, players):
     return [
         Comment.objects.create(
-            body="Comment_body", player=test_players[0], user=test_user
+            user=general_user,
+            player=players[0],
+            body="Comment Body",
         ),
         Comment.objects.create(
-            body="Comment_body", player=test_players[1], user=test_user_2
-        ),
-        Comment.objects.create(
-            body="Comment_body", player=test_players[1], user=test_user
+            user=general_user,
+            player=players[1],
+            body="Comment Body over 100 characters" * 100,
         ),
     ]
