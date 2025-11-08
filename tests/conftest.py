@@ -20,6 +20,15 @@ def general_user_data():
 
 
 @pytest.fixture
+def general_user_patch_data():
+    return {
+        "username": "patch_general_user",
+        "email": "patch_general_user@example.com",
+        "is_active": False,
+    }
+
+
+@pytest.fixture
 def general_user(db):
     return UserAccount.objects.create_user(
         username="general_user",
