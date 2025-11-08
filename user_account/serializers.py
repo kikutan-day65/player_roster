@@ -96,6 +96,7 @@ class UserAccountCommentListRetrievePublicSerializer(serializers.ModelSerializer
     class Meta:
         model = Comment
         fields = ["id", "body", "created_at", "updated_at", "player"]
+        read_only_fields = ["id", "body", "created_at", "updated_at", "player"]
 
 
 class UserAccountCommentListRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -112,15 +113,6 @@ class UserAccountCommentListRetrieveAdminSerializer(serializers.ModelSerializer)
             "deleted_at",
             "player",
         ]
-
-
-class UserAccountCommentPatchSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ["id", "body", "created_at", "updated_at", "player"]
-        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 # ==================================================
