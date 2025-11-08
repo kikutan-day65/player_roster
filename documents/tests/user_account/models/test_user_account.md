@@ -62,6 +62,10 @@ Fails to create a user without required fields
 -   [x] Raises `ValueError` if`email` is missing
 -   [x] Raises `ValueError` if`password` is missing
 
+Fails to create a user due to invalid email format
+
+-   [x] Raises `ValidationError` if `email` is invalid format
+
 Fails to create a user due to `max_length` constraint violation
 
 -   [x] Raises `ValidationError` if `username` violates `max_length` constraint

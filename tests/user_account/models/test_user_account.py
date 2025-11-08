@@ -36,6 +36,15 @@ def test_fails_to_create_general_user_without_required_fields(
 
 
 @pytest.mark.django_db
+def test_fails_to_create_general_user_with_invalid_email_format(general_user_data):
+    general_user_data["email"] = "invalid_email_format"
+    invalid_user = UserAccount(**general_user_data)
+
+    with pytest.raises(ValidationError):
+        invalid_user.full_clean()
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("target_field", ["username"])
 def test_fails_to_create_general_user_by_max_length_constraint_violation(
     target_field, general_user_data
