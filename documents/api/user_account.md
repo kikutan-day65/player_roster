@@ -70,7 +70,7 @@ prefix: `api/v1/`
     {
         "id": "aaa-aaa-aaa",
         "username": "user_name",
-        "created_at": "YYYY-MM-DD",
+        "created_at": "YYYY-MM-DD"
     }
     ```
 
@@ -124,8 +124,8 @@ prefix: `api/v1/`
 
 -   list: `AllowAny`
 -   retrieve: `AllowAny`
--   partial_update: `IsAdminUser` or `IsAuthenticatedOwner`
--   delete: `IsSuperUser` or `IsAuthenticatedOwner`
+-   partial_update: `IsAdminUser`
+-   delete: `IsSuperUser`
 -   other: at least `IsAuthenticated`
 
 -   [x] **GET** `user-accounts/{user_pk}/comments/`
@@ -215,38 +215,6 @@ prefix: `api/v1/`
         }
     }
     ```
-
--   [x] **PATCH** `user-accounts/{user_pk}/comments/{id}/`
-        Change the specific comment on the specific user
-
-    ```json
-    // Input
-    {
-        "body": "Comment Body..."
-    }
-    ```
-
-    ```json
-    // Output
-    {
-        "id": "zzz-zzz-zzz",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "player": {
-            "id": "xxx-xxx-xxx",
-            "first_name": "FirstName",
-            "last_name": "LastName",
-            "team": {
-                "id": "yyy-yyy-yyy",
-                "name": "Team Name"
-            }
-        }
-    }
-    ```
-
--   [x] **DELETE** `user-accounts/{user_pk}/comments/{id}/`
-        Delete the specific comment on the specific user
 
 ---
 
