@@ -1,31 +1,31 @@
 # Test for UserAccountCreateSerializer
 
-### Positive cases
+## Positive cases
 
-Success to validate and save a user
+### 1. Success to validate and save user data
 
--   [x] Validation is successful
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
+-   [] Validation is successful
 
--   [x] `username` in the output matches the input `username`
--   [x] `email` in the output matches the input `email`
+-   [] Expected fields (`id`, `username`, `email`, `created_at`) are included in the output
+-   [] Unexpected fields (`password`, `is_superuser`, `is_staff`, `is_active`, `updated_at`, `deleted_at`) are not included in the output
 
--   [x] `password` is stores in a hashed form
+-   [] `username` in the output matches that of input user data
+-   [] `email` in the output matches that of input user data
 
-Success to ignore the read-only fields
+-   [] `password` is stored in a hashed form
 
--   [x] Validation is successful
--   [x] `id` is not in `validated_data`
--   [x] `created_at` is not in `validated_data`
+### 2. Success to ignore the read-only fields
 
-### Negative cases
+-   [] Validation is successful
 
-Fails to validate without the required fields
+-   [] Read-only fields (`id`, `created_at`) are not in `validated_data`
 
--   [x] Validation fails if `username` is missing
--   [x] Validation fails if `email` is missing
--   [x] Validation fails if `password` is missing
+## Negative cases
+
+### 1. Fails to validate when required fields are missing
+
+-   [ ] Validation fails without required fields (`username`, `email`, `password`)
+-   [ ] Appropriate error messages are returned for missing fields
 
 ---
 
@@ -33,13 +33,10 @@ Fails to validate without the required fields
 
 ## Positive cases
 
-Success to serialize user data for public
+### 1. Success to serialize a user instance
 
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
-
--   [x] `id` in the output matches that of the input instance
--   [x] `username` in the output matches that of the input instance
+-   [] Expected fields (`id`, `username`, `created_at`) are included in the output
+-   [] Unexpected fields (`password`, `email`, `is_superuser`, `is_staff`, `is_active`, `updated_at`, `deleted_at`) are not included in the output
 
 ---
 
@@ -47,16 +44,10 @@ Success to serialize user data for public
 
 ## Positive cases
 
-Success to serialize user data for admin
+### 1. Success to serialize a user instance
 
--   [x] Output structure includes the expected fields
-
--   [x] `id` in the output matches that of the input instance
--   [x] `username` in the output matches that of the input instance
--   [x] `email` in the output matches that of the input instance
--   [x] `is_superuser` in the output matches that of the input instance
--   [x] `is_staff` in the output matches that of the input instance
--   [x] `is_active` in the output matches that of the input instance
+-   [] Expected fields (`id`, `username`, `email`, `is_superuser`, `is_staff`, `is_active`, `created_at`, `updated_at`, `deleted_at`) are included in the output
+-   [] Unexpected fields (`password`) are not included in the output
 
 ---
 
@@ -64,26 +55,22 @@ Success to serialize user data for admin
 
 ## Positive cases
 
-Success to validate and save with single field
+### 1. Success to validate and save user data with single field
 
--   [x] Validation is successful
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
+-   [] Validation is successful
 
--   [x] `username` in the output matches that of input data
--   [x] `email` in the output matches that of input data
--   [x] `is_active` in the output matches that of input data
+-   [] Expected fields (`id`, `username`, `email`, `is_superuser`, `is_staff`, `is_active`, `created_at`, `updated_at`) are included in the output
+-   [] Unexpected fields (`password`, `deleted_at`) are not included in the output
 
-Success to validate and save with all fields
+-   [] `username` in the output matches that of input user patch data
+-   [] `email` in the output matches that of input user patch data
+-   [] `is_active` in the output matches that of input user patch data
 
--   [x] Validation is successful
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
+### 2. Success to ignore the read-only fields
 
-Success to ignore the read-only fields
+-   [] Validation is successful
 
--   [x] Validation is successful
--   [x] The ignored fields is not in `validated_data`
+-   [] Read-only fields (`id`, `is_superuser`, `is_staff`, `created_at`, `updated_at`) are not in `validated_data`
 
 ---
 
@@ -91,145 +78,62 @@ Success to ignore the read-only fields
 
 ## Positive cases
 
-Success to serialize comment data on user for public
+### 1. Success to serialize comment instance on user
 
-**comment output**
+-   [] Expected fields (`id`, `body`, `created_at`, `updated_at`, `player`) are included in the output
+-   [] Unexpected fields (`user`, `deleted_at`) are not included in the output
 
--   [x] Comment output structure includes expected fields
--   [x] Comment output structure excludes unexpected fields
-
--   [x] `id` in the comment output matches that of the input data
--   [x] `body` in the comment output matches that of the input data
-
-**nested player output**
-
--   [x] Nested player output structure includes expected fields
--   [x] Nested player output structure excludes unexpected fields
-
-**nested team output**
-
--   [x] Nested team output structure includes expected fields
--   [x] Nested team output structure excludes unexpected fields
+-   [] `player` contains nested `team` structure
 
 ---
 
 # Test for UserAccountCommentListRetrieveAdminSerializer
 
-## Positive case
+## Positive cases
 
-Success to serialize comment data on user for admin
+### 1. Success to serialize comment instance on user
 
-**comment output**
+-   [] Expected fields (`id`, `body`, `created_at`, `updated_at`, `deleted_at`, `player`) are included in the output
+-   [] Unexpected fields (`user`) are not included in the output
 
--   [x] Comment output structure includes the expected fields
--   [x] Comment output structure excludes the unexpected fields
-
--   [x] `id` in the comment output matches that of the input data
--   [x] `body` in the comment output matches that of the input data
-
-**nested player output**
-
--   [x] Nested player output structure includes the expected fields
--   [x] Nested player output structure excludes the unexpected fields
-
-**nested team output**
-
--   [x] Nested team output structure includes the expected fields
--   [x] Nested team output structure excludes the unexpected fields
+-   [] `player` contains nested `team` structure
 
 ---
 
 # Test for MeRetrieveSerializer
 
-## Positive case
+## Positive cases
 
-Success to serialize current user
+### 1. Success to serialize current user instance
 
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
+-   [] Expected fields (`id`, `username`, `email`, `created_at`, `updated_at`) are included in the output
+-   [] Unexpected fields (`password`, `is_superuser`, `is_staff`, `is_active`, `deleted_at`) are not included in the output
 
--   [x] `id` in the output matches that of the input instance
--   [x] `username` in the output matches that of input instance
--   [x] `email` in the output matches that of input instance
-
-<!-- このシリアライザの見直し！！！ -->
+---
 
 # Test for MePatchSerializer
 
-## Positive case
+## Positive cases
 
-Success to validate and save with single field
-
--   [x] Validation is successful
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
-
--   [x] `username` in the output matches that of the input data
--   [x] `email` in the output matches that of the input data
-
-Success to validate and save with all fields
-
--   [x] Validation is successful
--   [x] Output structure includes the expected fields
--   [x] Output structure excludes the unexpected fields
-
--   [x] `username` in the output matches that of the input data
--   [x] `email` in the output matches that of the input data
-
-Success to ignore the read-only fields
-
--   [x] Validation is successful
--   [x] The ignored field is not in `validated_data`
-
-# Test for MeCommentListRetrieveSerializer
-
-## Positive case
-
-**comment data**
-
--   [x] Comment output structure includes the expected fields
--   [x] Comment output structure excludes the unexpected fields
-
--   [x] `id` in comment output matches the input data
--   [x] `body` in comment output matches the input data
-
-**nested player output**
-
--   [x] Nested player output structure includes expected fields
--   [x] Nested player output structure excludes unexpected fields
-
-**nested team output**
-
--   [x] Nested team output structure includes expected fields
--   [x] Nested team output structure excludes unexpected fields
-
-# Test for MeCommentPatchSerializer
-
-## Positive case
-
-Success to validate and save with single field
+### 1. Success to validate and save current user data with single field
 
 -   [] Validation is successful
 
-**comment data**
+-   [] Expected fields (`id`, `username`, `email`, `created_at`, `updated_at`) are included in the output
+-   [] Unexpected fields (`password`, `is_superuser`, `is_staff`, `is_active`, `deleted_at`) are not included in the output
 
--   [x] Comment output structure includes the expected fields
--   [x] Comment output structure excludes the unexpected fields
+-   [] `username` in the output matches that of current user patch data
+-   [] `email` in the output matches that of current user patch data
 
--   [x] `id` in comment output matches the input data
--   [x] `body` in comment output matches the input data
+---
 
-**nested player output**
+# Test for MeCommentListRetrieveSerializer
 
--   [x] Nested player output structure includes expected fields
--   [x] Nested player output structure excludes unexpected fields
+## Positive cases
 
-**nested team output**
+### 1. Success to serialize comment instance on current user
 
--   [x] Nested team output structure includes expected fields
--   [x] Nested team output structure excludes unexpected fields
+-   [] Expected fields (`id`, `body`, `created_at`, `updated_at`, `player`) are included in the output
+-   [] Unexpected fields (`user`, `deleted_at`) are not included in the output
 
-Success to ignore the read-only fields
-
--   [x] Validation is successful
--   [x] The ignored field is not in `validated_data`
+-   [] `player` contains nested `team` structure
