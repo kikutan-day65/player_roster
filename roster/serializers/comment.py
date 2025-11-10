@@ -19,7 +19,7 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "body", "created_at", "player", "player_id"]
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "created_at", "player"]
 
 
 class CommentListRetrievePublicSerializer(serializers.ModelSerializer):
@@ -70,4 +70,4 @@ class CommentPatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ["id", "body", "created_at", "updated_at", "player", "player_id"]
-        read_only_fields = ["id", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at", "player"]
