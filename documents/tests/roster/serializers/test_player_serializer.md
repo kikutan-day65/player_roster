@@ -4,27 +4,27 @@
 
 ### 1. Success to validate and save player data
 
--   [] Validation is successful
+-   [x] Validation is successful
 
--   [] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `team`) are included in the output
--   [] Unexpected fields (`updated_at`, `deleted_at`) are not included in the output
+-   [x] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `team`) are included in the output
+-   [x] Unexpected fields (`updated_at`, `deleted_at`) are not included in the output
 
--   [] `first_name` in the output matches that of the input player data
--   [] `last_name` in the output matches that of the input player data
--   [] `id` in the `team` field matches input `team_id`
+-   [x] `first_name` in the output matches that of the input player data
+-   [x] `last_name` in the output matches that of the input player data
+-   [x] `id` in the `team` field matches input `team_id`
 
 ### 2. Success to ignore read-only fields
 
--   [] Validation is successful
+-   [x] Validation is successful
 
--   [] Read-only fields (`id`, `created_at`, `team`) are not in `validated_data`
+-   [x] Read-only fields (`id`, `created_at`) are not in `validated_data`
 
 ## Negative cases
 
 ### 1. Fails to validate when required fields are missing
 
--   [] Validation fails without required fields (`team_id`, `first_name`, `last_name`)
--   [] Appropriate error messages are returned for missing fields
+-   [x] Validation fails without required fields (`team_id`, `first_name`, `last_name`)
+-   [x] Appropriate error messages are returned for missing fields
 
 ---
 
@@ -34,8 +34,8 @@
 
 ### 1. Success to serialize a player instance
 
--   [] Expected fields (`id`, `first_name`, `last_name`, `team`) are included in the output
--   [] Unexpected fields (`created_at`, `updated_at`, `deleted_at`) are not included in the output
+-   [x] Expected fields (`id`, `first_name`, `last_name`, `team`) are included in the output
+-   [x] Unexpected fields (`created_at`, `updated_at`, `deleted_at`) are not included in the output
 
 ---
 
@@ -45,8 +45,8 @@
 
 ### 1. Success to serialize a player instance
 
--   [] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `updated_at`, `deleted_at`, `team`) are included in the output
--   [] Unexpected fields are not included in the output -> All fields are expected
+-   [x] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `updated_at`, `deleted_at`, `team`) are included in the output
+-   [x] Unexpected fields are not included in the output -> All fields are expected
 
 ---
 
@@ -56,20 +56,20 @@
 
 ### 1. Success to validate and save player data with single field
 
--   [] Validation is successful
+-   [x] Validation is successful
 
--   [] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `updated_at`, `team`) are included in the output
--   [] Unexpected fields (`deleted_at`) are not included in the output
+-   [x] Expected fields (`id`, `first_name`, `last_name`, `created_at`, `updated_at`, `team`) are included in the output
+-   [x] Unexpected fields (`deleted_at`) are not included in the output
 
--   [] `first_name` in the output matches that of input player patch data
--   [] `last_name` in the output matches that of input player patch data
+-   [x] `first_name` in the output matches that of input player patch data
+-   [x] `last_name` in the output matches that of input player patch data
 -   [] `id` in the `team` field matches input `team_id`
 
 ### 2. Success to ignore read-only fields
 
--   [] Validation is successful
+-   [x] Validation is successful
 
--   [] Read-only fields (`id`, `created_at`, `updated_at`, `team`) are not in `validated_data`
+-   [x] Read-only fields (`id`, `created_at`, `updated_at`) are not in `validated_data`
 
 ---
 
@@ -79,8 +79,8 @@
 
 ### 1. Success to serialize comment instance on player
 
--   [] Expected fields (`id`, `body`, `created_at`, `updated_at`, `user`) are included in the output
--   [] Unexpected fields (`player`, `deleted_at`) are not included in the output
+-   [x] Expected fields (`id`, `body`, `created_at`, `updated_at`, `user`) are included in the output
+-   [x] Unexpected fields (`player`, `deleted_at`) are not included in the output
 
 ---
 
@@ -90,5 +90,5 @@
 
 ### 1. Success to serialize comment instance on player
 
--   [] Expected fields (`id`, `body`, `created_at`, `updated_at`, `deleted_at`, `user`) are included in the output
--   [] Unexpected fields (`player`) are not included in the output
+-   [x] Expected fields (`id`, `body`, `created_at`, `updated_at`, `deleted_at`, `user`) are included in the output
+-   [x] Unexpected fields (`player`) are not included in the output
