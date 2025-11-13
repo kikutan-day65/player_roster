@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from core.nested_serializers import TeamNestedSerializer
 from roster.models import Player, Team
 
 
