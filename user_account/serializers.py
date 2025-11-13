@@ -90,15 +90,16 @@ class UserAccountPatchSerializer(serializers.ModelSerializer):
 # ==================================================
 # UserAccountComment
 # ==================================================
-class UserAccountCommentListRetrievePublicSerializer(serializers.ModelSerializer):
+class UserAccountCommentListPublicSerializer(serializers.ModelSerializer):
     player = PlayerNestedSerializer(read_only=True)
 
     class Meta:
         model = Comment
         fields = ["id", "body", "created_at", "updated_at", "player"]
+        read_only_fields = ["id", "body", "created_at", "updated_at", "player"]
 
 
-class UserAccountCommentListRetrieveAdminSerializer(serializers.ModelSerializer):
+class UserAccountCommentListAdminSerializer(serializers.ModelSerializer):
     player = PlayerNestedSerializer(read_only=True)
 
     class Meta:
@@ -112,15 +113,6 @@ class UserAccountCommentListRetrieveAdminSerializer(serializers.ModelSerializer)
             "deleted_at",
             "player",
         ]
-
-
-class UserAccountCommentPatchSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ["id", "body", "created_at", "updated_at", "player"]
-        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 # ==================================================
@@ -143,19 +135,10 @@ class MePatchSerializer(serializers.ModelSerializer):
 # ==================================================
 # MeComment
 # ==================================================
-class MeCommentListRetrieveSerializer(serializers.ModelSerializer):
+class MeCommentListSerializer(serializers.ModelSerializer):
     player = PlayerNestedSerializer(read_only=True)
 
     class Meta:
         model = Comment
         fields = ["id", "body", "created_at", "updated_at", "player"]
         read_only_fields = ["id", "body", "created_at", "updated_at", "player"]
-
-
-class MeCommentPatchSerializer(serializers.ModelSerializer):
-    player = PlayerNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Comment
-        fields = ["id", "body", "created_at", "updated_at", "player"]
-        read_only_fields = ["id", "created_at", "updated_at", "player"]

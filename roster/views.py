@@ -1,4 +1,3 @@
-from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 
@@ -64,8 +63,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         return TeamListRetrievePublicSerializer
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
@@ -99,8 +97,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
         return PlayerListRetrievePublicSerializer
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -139,8 +136,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class TeamPlayerViewSet(viewsets.ModelViewSet):
@@ -182,8 +178,7 @@ class TeamPlayerViewSet(viewsets.ModelViewSet):
         serializer.save(team=self.kwargs["team_pk"])
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class PlayerCommentViewSet(viewsets.ModelViewSet):
@@ -226,5 +221,4 @@ class PlayerCommentViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user, player=self.kwargs["player_pk"])
 
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()

@@ -135,42 +135,9 @@ prefix: `api/v1/`
 
 ---
 
-## Endpoint for PlayerComment
+# Endpoint for PlayerComment
 
--   create: `IsAuthenticated`
 -   list: `AllowAny`
--   retrieve: `AllowAny`
--   partial_update: `IsAdminUser` or `IsAuthenticatedOwner`
--   delete: `IsSuperUser` or `IsAuthenticatedOwner`
--   other: at least `IsAuthenticated`
-
--   [x] **POST** `players/{player_pk}/comments/`
-        Create a new comment on the specific player
-
-    ```json
-    // Input
-    {
-        "body": "Comment Body..."
-    }
-    ```
-
-    ```json
-    // Output
-    {
-        "id": "zzz-zzz-zzz",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "player": {
-            "id": "xxx-xxx-xxx",
-            "first_name": "FirstName",
-            "last_name": "LastName",
-            "team": {
-                "id": "yyy-yyy-yyy",
-                "name": "Team Name"
-            }
-        }
-    }
-    ```
 
 -   [x] **GET** `players/{player_pk}/comments/`
         Get all comments on the specific player
@@ -182,7 +149,11 @@ prefix: `api/v1/`
             "id": "zzz-zzz-zzz",
             "body": "Comment Body...",
             "created_at": "YYYY-MM-DD",
-            "updated_at": "YYYY-MM-DD"
+            "updated_at": "YYYY-MM-DD",
+            "user": {
+                "id": "aaa-aaa-aaa",
+                "username": "user_name"
+            }
         }
     ]
     ```
@@ -195,66 +166,14 @@ prefix: `api/v1/`
             "body": "Comment Body...",
             "created_at": "YYYY-MM-DD",
             "updated_at": "YYYY-MM-DD",
-            "deleted_at": "YYYY-MM-DD"
+            "deleted_at": "YYYY-MM-DD",
+            "user": {
+                "id": "aaa-aaa-aaa",
+                "username": "user_name"
+            }
         }
     ]
     ```
-
--   [x] **GET** `players/{player_pk}/comments/{id}/`
-        Get the specific comment on the specific player
-
-    ```json
-    // Output (General)
-    {
-        "id": "zzz-zzz-zzz",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD"
-    }
-    ```
-
-    ```json
-    // Output (Admin)
-    {
-        "id": "zzz-zzz-zzz",
-        "body": "Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "deleted_at": "YYYY-MM-DD"
-    }
-    ```
-
--   [x] **PATCH** `players/{player_pk}/comments/{id}/`
-        Change the specific comment on the specific player
-
-    ```json
-    // Input
-    {
-        "body": "Updated Comment Body..."
-    }
-    ```
-
-    ```json
-    // Output
-    {
-        "id": "zzz-zzz-zzz",
-        "body": "Updated Comment Body...",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "player": {
-            "id": "xxx-xxx-xxx",
-            "first_name": "FirstName",
-            "last_name": "LastName",
-            "team": {
-                "id": "yyy-yyy-yyy",
-                "name": "Team Name"
-            }
-        }
-    }
-    ```
-
--   [x] **DELETE** `players/{player_pk}/comments/{id}/`
-        Delete the specific comment on the specific player
 
 ---
 
@@ -371,37 +290,7 @@ prefix: `api/v1/`
 
 ## Endpoint for TeamPlayer
 
--   create: `IsAdminUser`
 -   list: `AllowAny`
--   retrieve: `AllowAny`
--   partial_update: `IsAdminUser`
--   delete: `IsSuperUser`
--   other: at least `IsAuthenticated`
-
--   [x] **POST** `teams/{team_pk}/players/`
-        Create a new player on the specific team
-
-    ```json
-    // Input
-    {
-        "first_name": "FirstName",
-        "last_name": "LastName"
-    }
-    ```
-
-    ```json
-    // Output
-    {
-        "id": "xxx-xxx-xxx",
-        "first_name": "FirstName",
-        "last_name": "LastName",
-        "created_at": "YYYY-MM-DD",
-        "team": {
-            "id": "yyy-yyy-yyy",
-            "name": "Team Name"
-        }
-    }
-    ```
 
 -   [x] **GET** `teams/{team_pk}/players/`
         Get the list of players on the specific team
@@ -430,59 +319,6 @@ prefix: `api/v1/`
         }
     ]
     ```
-
--   [x] **GET** `teams/{team_pk}/players/{id}/`
-        Get the specific player on the specific team
-
-    ```json
-    // Output (General)
-    {
-        "id": "xxx-xxx-xxx",
-        "first_name": "FirstName",
-        "last_name": "LastName"
-    }
-    ```
-
-    ```json
-    // Output (Admin)
-    {
-        "id": "xxx-xxx-xxx",
-        "first_name": "FirstName",
-        "last_name": "LastName",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "deleted_at": "YYYY-MM-DD"
-    }
-    ```
-
--   [x] **PATCH** `teams/{team_pk}/players/{id}/`
-        Change the specific player information on the specific team
-
-    ```json
-    // Input
-    {
-        "first_name": "UpdatedFirstName",
-        "last_name": "UpdatedLastName"
-    }
-    ```
-
-    ```json
-    // Output
-    {
-        "id": "xxx-xxx-xxx",
-        "first_name": "UpdatedFirstName",
-        "last_name": "UpdatedLastName",
-        "created_at": "YYYY-MM-DD",
-        "updated_at": "YYYY-MM-DD",
-        "team": {
-            "id": "yyy-yyy-yyy",
-            "name": "Team Name"
-        }
-    }
-    ```
-
--   [x] **DELETE** `teams/{team_pk}/players/{id}/`
-        Delete the specific player on the specific team
 
 ---
 

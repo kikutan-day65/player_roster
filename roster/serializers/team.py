@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from core.nested_serializers import TeamNestedSerializer
 from roster.models import Player, Team
 
 
@@ -45,23 +44,14 @@ class TeamPatchSerializer(serializers.ModelSerializer):
 # ==================================================
 # TeamPlayer
 # ==================================================
-class TeamPlayerCreateSerializer(serializers.ModelSerializer):
-    team = TeamNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Player
-        fields = ["id", "first_name", "last_name", "created_at", "team"]
-        read_only_fields = ["id", "created_at"]
-
-
-class TeamPlayerListRetrievePublicSerializer(serializers.ModelSerializer):
+class TeamPlayerListPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ["id", "first_name", "last_name"]
         read_only_fields = ["id", "first_name", "last_name"]
 
 
-class TeamPlayerListRetrieveAdminSerializer(serializers.ModelSerializer):
+class TeamPlayerListAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = [
@@ -80,12 +70,3 @@ class TeamPlayerListRetrieveAdminSerializer(serializers.ModelSerializer):
             "updated_at",
             "deleted_at",
         ]
-
-
-class TeamPlayerPatchSerializer(serializers.ModelSerializer):
-    team = TeamNestedSerializer(read_only=True)
-
-    class Meta:
-        model = Player
-        fields = ["id", "first_name", "last_name", "created_at", "updated_at", "team"]
-        read_only_fields = ["id", "created_at", "updated_at", "team"]
