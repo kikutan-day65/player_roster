@@ -20,15 +20,6 @@ def general_user_data():
 
 
 @pytest.fixture
-def general_user_patch_data():
-    return {
-        "username": "patch_general_user",
-        "email": "patch_general_user@example.com",
-        "is_active": False,
-    }
-
-
-@pytest.fixture
 def general_user(db):
     return UserAccount.objects.create_user(
         username="general_user",
@@ -129,10 +120,11 @@ def players(db, teams):
 
 
 @pytest.fixture
-def comment_data(general_user, players):
+def comment_data(db, general_user, players):
+    print(general_user.id)
     return {
-        "user": general_user,
-        "player": players[0],
+        "user_id": general_user.id,
+        "player_id": players[0].id,
         "body": "Comment Body",
     }
 
