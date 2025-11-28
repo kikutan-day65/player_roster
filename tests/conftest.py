@@ -1,4 +1,5 @@
 import pytest
+from django.urls import reverse
 from rest_framework.test import APIClient
 
 from roster.models import Comment, Player, Team
@@ -164,3 +165,24 @@ def comments(db, general_user, players):
             body="Comment Body over 100 characters" * 10,
         ),
     ]
+
+
+@pytest.fixture
+def user_account_list_url():
+    return reverse("user_account-list")
+
+
+@pytest.fixture
+def user_account_detail_url():
+    def build_url(pk):
+        return reverse("user_account-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def user_account_comments_url():
+    def build_url(pk):
+        return reverse("user_account-comments", args=[pk])
+
+    return build_url
