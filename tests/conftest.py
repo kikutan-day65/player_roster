@@ -78,6 +78,28 @@ def super_user(db):
 
 
 @pytest.fixture
+def users(db):
+    return [
+        UserAccount.objects.create_user(
+            username="user_1",
+            email="user_1@example.com",
+            password="generalUser123",
+        ),
+        UserAccount.objects.create_user(
+            username="user_2",
+            email="user_2@example.com",
+            password="generalUser123",
+        ),
+        UserAccount.objects.create_user(
+            username="user_3",
+            email="user_3@example.com",
+            password="adminUser123",
+            is_staff=True,
+        ),
+    ]
+
+
+@pytest.fixture
 def team_data():
     return {"name": "Team Name", "sport": "baseball"}
 
@@ -121,7 +143,6 @@ def players(db, teams):
 
 @pytest.fixture
 def comment_data(db, general_user, players):
-    print(general_user.id)
     return {
         "user_id": general_user.id,
         "player_id": players[0].id,
@@ -140,6 +161,6 @@ def comments(db, general_user, players):
         Comment.objects.create(
             user=general_user,
             player=players[1],
-            body="Comment Body over 100 characters" * 100,
+            body="Comment Body over 100 characters" * 10,
         ),
     ]
