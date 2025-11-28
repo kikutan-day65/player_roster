@@ -348,14 +348,14 @@ class TestUserAccountViewSet(TestBase):
     # ========================================================================
     # Patch Action - Negative Cases
     # ========================================================================
-    def test_patch_returns_403_for_anonymous_user(
+    def test_patch_returns_401_for_anonymous_user(
         self, api_client, user_account_detail_url, general_user
     ):
         url = user_account_detail_url(general_user.id)
         patch_data = {"username": "patch_username"}
         response = api_client.patch(url, patch_data=patch_data)
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_patch_returns_403_for_general_user(
         self, api_client, user_account_detail_url, general_user, admin_user
@@ -444,13 +444,13 @@ class TestUserAccountViewSet(TestBase):
     # ========================================================================
     # Delete Action - Negative Cases
     # ========================================================================
-    def test_delete_returns_403_for_anonymous_user(
+    def test_delete_returns_401_for_anonymous_user(
         self, api_client, user_account_detail_url, general_user
     ):
         url = user_account_detail_url(general_user.id)
         response = api_client.delete(url)
 
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_delete_returns_403_for_general_user(
         self, api_client, user_account_detail_url, general_user, general_user_2

@@ -95,7 +95,7 @@
 
 ### Negative cases
 
--   [x] Returns 403 for anonymous user
+-   [x] Returns 401 for anonymous user
 -   [x] Returns 403 for general user
 -   [x] Returns 404 when trying to patch nonexistent user
 -   [x] Fails to patch with unique constraint violation
@@ -112,7 +112,7 @@
 
 ### Negative cases
 
--   [x] Returns 403 for anonymous user
+-   [x] Returns 401 for anonymous user
 -   [x] Returns 403 for general user
 -   [x] Returns 403 for admin user
 -   [x] Returns 404 when trying to delete nonexistent user
