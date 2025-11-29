@@ -102,30 +102,11 @@ class MeAPIView(generics.RetrieveUpdateDestroyAPIView):
         instance.soft_delete()
 
 
-class MeCommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    http_method_names = ["get", "patch", "delete"]
+class MeCommentAPIView(generics.ListAPIView):
+    http_method_names = ["get"]
+    serializer_class = MeCommentListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            user=self.request.user, deleted_at__isnull=True
-        ).order_by("-created_at")
-
-    def get_serializer_class(self):
-        if self.request.method == "PATCH":
-            return MeCommentPatchSerializer
-        return MeCommentListRetrieveSerializer
-
-    def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
-
-
-class MeCommentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = MeCommentListRetrieveSerializer
-
-    def get_queryset(self):
-        return Comment.objects.filter(
-            user=self.request.user, deleted_at__isnull=True
-        ).order_by("-created_at")
+        qs = Comment.objects.filter(user=self.request.user, deleted_at__isnull=True)
+        return qs.order_by("-created_at")
