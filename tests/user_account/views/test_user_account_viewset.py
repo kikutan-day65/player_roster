@@ -774,3 +774,62 @@ class TestMeAPIView(TestBase):
         response = api_client.delete(me_url)
 
         assert response.status_code == 401
+
+
+class TestMeCommentAPIView(TestBase):
+    # ========================================================================
+    # List Action - Positive Cases
+    # ========================================================================
+    def test_list_returns_200_and_allows_authenticated_user(
+        self, api_client, me_comments_url, general_user, comments
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_comments_url)
+
+        assert response.status_code == 200
+
+    def test_list_excludes_soft_deleted_comment(
+        self, api_client, me_comments_url, general_user, comments
+    ):
+        comments[0].soft_delete()
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_comments_url)
+        ids = [item["id"] for item in response.data["results"]]
+
+        assert str(comments[0].id) not in ids
+
+    def test_list_uses_correct_serializer_and_returns_correct_response(
+        self, api_client, me_comments_url, general_user, comments
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_comments_url)
+        comment_data = response.data["results"][0]
+        nested_player_data = comment_data["player"]
+        nested_team_data = nested_player_data["team"]
+
+        comment_expected_fields = {"id", "body", "created_at", "updated_at", "player"}
+        assert set(comment_data.keys()) == comment_expected_fields
+
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+        assert set(nested_player_data.keys()) == player_expected_fields
+
+        team_expected_fields = {"id", "name"}
+        assert set(nested_team_data.keys()) == team_expected_fields
+
+    def test_list_results_returned_in_descending_order(
+        self, api_client, me_comments_url, general_user, comments
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_comments_url)
+        response_created_at = [item["created_at"] for item in response.data["results"]]
+        descending_order = sorted(response_created_at, reverse=True)
+
+        assert response_created_at == descending_order
+
+    # ========================================================================
+    # List Action - Negative Cases
+    # ========================================================================
+    def test_list_returns_401_for_anonymous_user(self, api_client, me_comments_url):
+        response = api_client.get(me_comments_url)
+
+        assert response.status_code == 401
