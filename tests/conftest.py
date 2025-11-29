@@ -186,3 +186,13 @@ def user_account_comments_url():
         return reverse("user_account-comments", args=[pk])
 
     return build_url
+
+
+@pytest.fixture
+def me_url():
+    return reverse("me")
+
+
+@pytest.fixture
+def me_comments_url():
+    return reverse("me_comments")
