@@ -150,3 +150,56 @@
 ### Negative cases
 
 -   [x] Returns 404 when trying to get comments on nonexistent user
+
+# Test for MeAPIView
+
+## Retrieve (`GET user-accounts/me/`)
+
+### Positive cases
+
+-   [x] Returns 200
+-   [x] Allows authenticated user
+-   [x] `get_object()` returns the request user
+
+#### Serializer
+
+-   [x] Uses correct serializer
+-   [x] Response contains expected fields (`id`, `username`, `email`, `created_at`, `updated_at`)
+
+### Negative cases
+
+-   [x] Returns 401 for anonymous user
+
+## Partial update (`PATCH user-accounts/me/`)
+
+### Positive cases
+
+-   [x] Returns 200 for valid data
+-   [x] Allows authenticated user
+-   [x] `get_object()` returns the request user
+-   [x] Only allowed fields are updated
+-   [x] Not allowed fields remain unchanged
+
+#### Serializer
+
+-   [x] Uses correct serializer
+-   [x] Response contains expected fields (`id`, `username`, `email`, `created_at`, `updated_at`)
+
+### Negative cases
+
+-   [x] Returns 401 for anonymous user
+-   [x] Fails to patch with unique constraint violation
+-   [x] Fails to patch for invalid email format
+-   [x] Fails to patch for `username_validator` violation
+
+## Destroy (`DELETE user-accounts/me/`)
+
+### Positive cases
+
+-   [x] Returns 204
+-   [x] Allows authenticated user
+-   [] `deleted_at` field is set
+
+### Negative cases
+
+-   [x] Returns 401 for anonymous user
