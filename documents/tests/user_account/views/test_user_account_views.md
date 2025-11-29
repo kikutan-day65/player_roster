@@ -203,3 +203,31 @@
 ### Negative cases
 
 -   [x] Returns 401 for anonymous user
+
+# Test for MeCommentAPIView
+
+## List (`GET user-accounts/me/comments/`)
+
+### Positive cases
+
+-   [x] Returns 200
+-   [x] Allows authenticated user
+
+#### Queryset
+
+-   [x] Comments excludes soft-deleted comments (`deleted_at`)
+
+#### Serializer
+
+-   [x] Uses correct serializer
+-   [x] Response contains the expected fields (`id`, `body`, `created_at`, `updated_at`, `player`)
+-   [x] Nested `player` contains expected fields (`id`, `first_name`, `last_name`, `team`)
+-   [x] Nested `player.team` contains expected fields (`id`, `name`)
+
+#### Ordering
+
+-   [x] Results are returned in descending order of `created_at`
+
+### Negative cases
+
+-   [x] Returns 401 for anonymous user
