@@ -590,3 +590,187 @@ class TestUserAccountViewSet(TestBase):
         response = api_client.get(url)
 
         assert response.status_code == 404
+
+
+class TestMeAPIView(TestBase):
+    # ========================================================================
+    # Retrieve Action - Positive Cases
+    # ========================================================================
+    def test_retrieve_returns_200_and_allows_authenticated_user(
+        self, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_url)
+
+        assert response.status_code == 200
+
+    def test_retrieve_get_object_returns_request_user_object(
+        self, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_url)
+
+        assert response.data["id"] == str(general_user.id)
+
+    def test_uses_correct_serializer_and_returns_correct_response(
+        self, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.get(me_url)
+
+        expected_fields = {"id", "username", "email", "created_at", "updated_at"}
+
+        assert set(response.data.keys()) == expected_fields
+
+    # ========================================================================
+    # Retrieve Action - Negative Cases
+    # ========================================================================
+    def test_returns_401_for_anonymous_user(self, api_client, me_url):
+        response = api_client.get(me_url)
+
+        assert response.status_code == 401
+
+    # ========================================================================
+    # Patch Action - Positive Cases
+    # ========================================================================
+    @pytest.mark.parametrize(
+        "field, value",
+        [("username", "patch_username"), ("email", "patch_email@example.com")],
+    )
+    def test_patch_returns_200_and_allows_authenticated_user(
+        self, field, value, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        patch_data = {field: value}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.status_code == 200
+
+    @pytest.mark.parametrize(
+        "field, value",
+        [("username", "patch_username"), ("email", "patch_email@example.com")],
+    )
+    def test_patch_get_object_returns_request_user_object(
+        self, field, value, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        patch_data = {field: value}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.data["id"] == str(general_user.id)
+
+    @pytest.mark.parametrize(
+        "field, value",
+        [("username", "patch_username"), ("email", "patch_email@example.com")],
+    )
+    def test_patch_allowed_fields_are_updated(
+        self, field, value, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        patch_data = {field: value}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.data[field] == value
+
+    @pytest.mark.parametrize(
+        "field, value",
+        [("id", uuid4()), ("created_at", "20251111")],
+    )
+    def test_patch_not_allowed_fields_are_unchanged(
+        self, field, value, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        original_value = getattr(general_user, field)
+
+        patch_data = {field: value}
+        api_client.patch(me_url, data=patch_data)
+
+        general_user.refresh_from_db()
+
+        assert getattr(general_user, field) == original_value
+
+    @pytest.mark.parametrize(
+        "field, value",
+        [("username", "patch_username"), ("email", "patch_email@example.com")],
+    )
+    def test_patch_uses_correct_serializer_and_returns_correct_response(
+        self, field, value, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        patch_data = {field: value}
+        response = api_client.patch(me_url, data=patch_data)
+
+        expected_fields = {"id", "username", "email", "created_at", "updated_at"}
+
+        assert set(response.data.keys()) == expected_fields
+
+    # ========================================================================
+    # Patch Action - Negative Cases
+    # ========================================================================
+    def test_patch_returns_401_for_anonymous_user(self, api_client, me_url):
+        response = api_client.patch(me_url)
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize("field", ["username", "email"])
+    def test_patch_fails_when_violating_unique_constraint(
+        self, field, api_client, me_url, general_user, users
+    ):
+        user = users[0]
+
+        api_client.force_authenticate(user=general_user)
+        patch_data = {field: getattr(user, field)}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.status_code == 400
+        assert field in response.data
+
+    def test_patch_fails_for_invalid_email_format(
+        self, api_client, me_url, general_user
+    ):
+        invalid_email_format = "invalid email format"
+
+        api_client.force_authenticate(user=general_user)
+        patch_data = {"email": invalid_email_format}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.status_code == 400
+        assert "email" in response.data
+
+    def test_patch_fails_when_violating_username_validator(
+        self, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        patch_data = {"username": "invalid username"}
+        response = api_client.patch(me_url, data=patch_data)
+
+        assert response.status_code == 400
+        assert "username" in response.data
+
+    # ========================================================================
+    # Delete Action - Positive Cases
+    # ========================================================================
+    def test_delete_returns_204_and_allows_authenticated_user(
+        self, api_client, me_url, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.delete(me_url)
+
+        assert response.status_code == 204
+
+    def test_delete_sets_deleted_at_field(self, api_client, me_url, general_user):
+        api_client.force_authenticate(user=general_user)
+        api_client.delete(me_url)
+
+        general_user.refresh_from_db()
+
+        assert general_user.deleted_at is not None
+
+    # ========================================================================
+    # Destroy Action - Negative Cases
+    # ========================================================================
+    def test_delete_returns_401_fro_anonymous_user(self, api_client, me_url):
+        response = api_client.delete(me_url)
+
+        assert response.status_code == 401
