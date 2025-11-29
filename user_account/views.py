@@ -1,15 +1,14 @@
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
-from core.permissions import IsAuthenticatedOwner, IsSuperUser
+from core.permissions import IsSuperUser
 from roster.models import Comment
 
 from .models import UserAccount
 from .serializers import (
-    MeCommentListRetrieveSerializer,
-    MeCommentPatchSerializer,
+    MeCommentListSerializer,
     MePatchSerializer,
     MeRetrieveSerializer,
     UserAccountCommentListAdminSerializer,
