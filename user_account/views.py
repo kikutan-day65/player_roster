@@ -84,12 +84,9 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class MeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class MeAPIView(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ["get", "patch", "delete"]
     permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -98,9 +95,11 @@ class MeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return MePatchSerializer
         return MeRetrieveSerializer
 
+    def get_object(self):
+        return self.request.user
+
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
 class MeCommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
