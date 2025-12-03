@@ -592,6 +592,7 @@ class TestUserAccountViewSet(TestBase):
         assert response.status_code == 404
 
 
+@pytest.mark.django_db
 class TestMeAPIView(TestBase):
     # ========================================================================
     # Retrieve Action - Positive Cases
@@ -776,6 +777,7 @@ class TestMeAPIView(TestBase):
         assert response.status_code == 401
 
 
+@pytest.mark.django_db
 class TestMeCommentAPIView(TestBase):
     # ========================================================================
     # List Action - Positive Cases
