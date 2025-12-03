@@ -12,8 +12,8 @@ def test_success_to_create_comment_with_valid_data(comment_data):
 
     assert comment.id is not None
     assert isinstance(comment.id, UUID)
-    assert comment.user == comment_data["user"]
-    assert comment.player == comment_data["player"]
+    assert comment.user.id == comment_data["user_id"]
+    assert comment.player.id == comment_data["player_id"]
     assert comment.body == comment_data["body"]
     assert comment.created_at is not None
     assert comment.updated_at is not None
@@ -21,7 +21,7 @@ def test_success_to_create_comment_with_valid_data(comment_data):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("missing_field", ["user", "player", "body"])
+@pytest.mark.parametrize("missing_field", ["user_id", "player_id", "body"])
 def test_fails_to_create_comment_without_required_fields(missing_field, comment_data):
     comment_data.pop(missing_field)
 
