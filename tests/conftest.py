@@ -139,6 +139,13 @@ def players(db, teams):
                 teams[0].id,
             ),
         ),
+        Player.objects.create(
+            first_name="FirstNameThree",
+            last_name="LastNameThree",
+            team_id=str(
+                teams[0].id,
+            ),
+        ),
     ]
 
 
@@ -196,3 +203,24 @@ def me_url():
 @pytest.fixture
 def me_comments_url():
     return reverse("me_comments")
+
+
+@pytest.fixture
+def team_list_url():
+    return reverse("team-list")
+
+
+@pytest.fixture
+def team_retrieve_url():
+    def build_url(pk):
+        return reverse("team-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def team_players_url():
+    def build_url(pk):
+        return reverse("team-players", args=[pk])
+
+    return build_url
