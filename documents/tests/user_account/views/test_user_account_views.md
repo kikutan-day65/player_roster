@@ -198,7 +198,7 @@
 
 -   [x] Returns 204
 -   [x] Allows authenticated user
--   [] `deleted_at` field is set
+-   [x] `deleted_at` field is set
 
 ### Negative cases
 
