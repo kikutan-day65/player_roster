@@ -1,5 +1,7 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
 from core.permissions import IsAuthenticatedOwner, IsSuperUser
 
@@ -25,10 +27,8 @@ from .serializers.team import (
     TeamListRetrieveAdminSerializer,
     TeamListRetrievePublicSerializer,
     TeamPatchSerializer,
-    TeamPlayerCreateSerializer,
-    TeamPlayerListRetrieveAdminSerializer,
-    TeamPlayerListRetrievePublicSerializer,
-    TeamPlayerPatchSerializer,
+    TeamPlayerListAdminSerializer,
+    TeamPlayerListPublicSerializer,
 )
 
 
@@ -37,19 +37,21 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Team.objects.all().order_by("-created_at")
-        return Team.objects.filter(deleted_at__isnull=True).order_by("-created_at")
+            qs = Team.objects.all()
+        else:
+            qs = Team.objects.filter(deleted_at__isnull=True)
+        return qs.order_by("-created_at")
 
     def get_permissions(self):
         if self.action in ["create", "partial_update"]:
-            permission_classes = [IsAdminUser]
-        elif self.action in ["list", "retrieve"]:
-            permission_classes = [AllowAny]
+            permission_class = [IsAdminUser]
+        elif self.action in ["list", "retrieve", "players"]:
+            permission_class = [AllowAny]
         elif self.action == "destroy":
-            permission_classes = [IsSuperUser]
+            permission_class = [IsSuperUser]
         else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            permission_class = [IsAuthenticated]
+        return [permission() for permission in permission_class]
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -64,6 +66,30 @@ class TeamViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.soft_delete()
+
+    @action(detail=True, methods=["get"], url_name="players")
+    def players(self, request, pk=None):
+        target_team = self.get_object()
+
+        is_admin = request.user.is_staff
+
+        if is_admin:
+            serializer_class = TeamPlayerListAdminSerializer
+            player_qs = Player.objects.filter(team=target_team)
+        else:
+            serializer_class = TeamPlayerListPublicSerializer
+            player_qs = Player.objects.filter(team=target_team, deleted_at__isnull=True)
+
+        players = player_qs.order_by("-created_at")
+
+        page = self.paginate_queryset(players)
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(players, many=True)
+
+        return Response(serializer.data)
 
 
 class PlayerViewSet(viewsets.ModelViewSet):
