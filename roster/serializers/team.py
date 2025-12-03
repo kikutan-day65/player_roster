@@ -16,8 +16,8 @@ class TeamCreateSerializer(serializers.ModelSerializer):
 class TeamListRetrievePublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ["id", "name", "sport"]
-        read_only_fields = ["id", "name", "sport"]
+        fields = ["id", "name", "sport", "created_at"]
+        read_only_fields = ["id", "name", "sport", "created_at"]
 
 
 class TeamListRetrieveAdminSerializer(serializers.ModelSerializer):
@@ -47,8 +47,8 @@ class TeamPatchSerializer(serializers.ModelSerializer):
 class TeamPlayerListPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ["id", "first_name", "last_name"]
-        read_only_fields = ["id", "first_name", "last_name"]
+        fields = ["id", "first_name", "last_name", "created_at"]
+        read_only_fields = ["id", "first_name", "last_name", "created_at"]
 
 
 class TeamPlayerListAdminSerializer(serializers.ModelSerializer):
