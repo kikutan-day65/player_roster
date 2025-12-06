@@ -211,7 +211,7 @@ def team_list_url():
 
 
 @pytest.fixture
-def team_retrieve_url():
+def team_detail_url():
     def build_url(pk):
         return reverse("team-detail", args=[pk])
 
