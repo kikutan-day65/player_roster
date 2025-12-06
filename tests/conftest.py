@@ -168,6 +168,11 @@ def comments(db, general_user, players):
         ),
         Comment.objects.create(
             user=general_user,
+            player=players[0],
+            body="Comment Body 1",
+        ),
+        Comment.objects.create(
+            user=general_user,
             player=players[1],
             body="Comment Body over 100 characters" * 10,
         ),
