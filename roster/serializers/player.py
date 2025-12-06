@@ -27,8 +27,8 @@ class PlayerListRetrievePublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ["id", "first_name", "last_name", "team"]
-        read_only_fields = ["id", "first_name", "last_name", "team"]
+        fields = ["id", "first_name", "last_name", "created_at", "team"]
+        read_only_fields = ["id", "first_name", "last_name", "created_at", "team"]
 
 
 class PlayerListRetrieveAdminSerializer(serializers.ModelSerializer):
