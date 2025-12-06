@@ -60,7 +60,7 @@ def test_success_to_check_str_method(comments):
 
     assert result == comment.body
 
-    comment_over_100 = comments[1]
+    comment_over_100 = comments[2]
     result = comment_over_100.__str__()
 
     assert result == comment_over_100.body[:100] + "..."
