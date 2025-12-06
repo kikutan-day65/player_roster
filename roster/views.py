@@ -13,10 +13,8 @@ from .serializers.comment import (
     CommentPatchSerializer,
 )
 from .serializers.player import (
-    PlayerCommentCreateSerializer,
-    PlayerCommentListRetrieveAdminSerializer,
-    PlayerCommentListRetrievePublicSerializer,
-    PlayerCommentPatchSerializer,
+    PlayerCommentListAdminSerializer,
+    PlayerCommentListPublicSerializer,
     PlayerCreateSerializer,
     PlayerListRetrieveAdminSerializer,
     PlayerListRetrievePublicSerializer,
@@ -97,19 +95,21 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return Player.objects.all().order_by("-created_at")
-        return Player.objects.filter(deleted_at__isnull=True).order_by("-created_at")
+            qs = Player.objects.all()
+        else:
+            qs = Player.objects.filter(deleted_at__isnull=True)
+        return qs.order_by("-created_at")
 
     def get_permissions(self):
         if self.action in ["create", "partial_update"]:
-            permission_classes = [IsAdminUser]
-        elif self.action in ["list", "retrieve"]:
-            permission_classes = [AllowAny]
+            permission_class = [IsAdminUser]
+        elif self.action in ["list", "retrieve", "comments"]:
+            permission_class = [AllowAny]
         elif self.action == "destroy":
-            permission_classes = [IsSuperUser]
+            permission_class = [IsSuperUser]
         else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            permission_class = [IsAuthenticated]
+        return [permission() for permission in permission_class]
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -124,6 +124,32 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.soft_delete()
+
+    @action(detail=True, url_name="comments")
+    def comments(self, request, pk=None):
+        target_player = self.get_object()
+
+        is_admin = request.user.is_staff
+
+        if is_admin:
+            serializer_class = PlayerCommentListAdminSerializer
+            comment_qs = Comment.objects.filter(player=target_player)
+        else:
+            serializer_class = PlayerCommentListPublicSerializer
+            comment_qs = Comment.objects.filter(
+                player=target_player, deleted_at__isnull=True
+            )
+
+        comments = comment_qs.order_by("-created_at")
+
+        page = self.paginate_queryset(comments)
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(comments, many=True)
+
+        return Response(serializer.data)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
