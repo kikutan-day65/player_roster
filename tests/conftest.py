@@ -224,3 +224,24 @@ def team_players_url():
         return reverse("team-players", args=[pk])
 
     return build_url
+
+
+@pytest.fixture
+def player_list_url():
+    return reverse("player-list")
+
+
+@pytest.fixture
+def player_detail_url():
+    def build_url(pk):
+        return reverse("player-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def player_comments_url():
+    def build_url(pk):
+        return reverse("player-comments", args=[pk])
+
+    return build_url
