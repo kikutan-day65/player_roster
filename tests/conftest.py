@@ -250,3 +250,16 @@ def player_comments_url():
         return reverse("player-comments", args=[pk])
 
     return build_url
+
+
+@pytest.fixture
+def comment_list_url():
+    return reverse("comment-list")
+
+
+@pytest.fixture
+def comment_detail_url():
+    def build_url(pk):
+        return reverse("comment-detail", args=[pk])
+
+    return build_url
