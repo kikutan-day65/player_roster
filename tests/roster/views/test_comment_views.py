@@ -1,0 +1,655 @@
+from uuid import uuid4
+
+import pytest
+
+from core.tests.test_base import TestBase
+from roster.models import Comment
+
+
+@pytest.mark.django_db
+class TestCommentViewSet(TestBase):
+    # ========================================================================
+    # Create Action - Positive Cases
+    # ========================================================================
+    def test_create_returns_201_and_allows_authenticate_user(
+        self, api_client, comment_list_url, comment_data_from_view, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.post(comment_list_url, data=comment_data_from_view)
+
+        assert response.status_code == 201
+
+    def test_create_saves_comment_to_database(
+        self, api_client, comment_list_url, comment_data_from_view, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        before = Comment.objects.count()
+        api_client.post(comment_list_url, data=comment_data_from_view)
+        after = Comment.objects.count()
+
+        assert after == before + 1
+
+    def test_create_uses_correct_serializer_and_returns_correct_response(
+        self, api_client, comment_list_url, comment_data_from_view, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+        response = api_client.post(comment_list_url, data=comment_data_from_view)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "player"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    # ========================================================================
+    # Create Action - Negative Cases
+    # ========================================================================
+    def test_create_returns_401_for_anonymous_user(
+        self, api_client, comment_list_url, comment_data_from_view
+    ):
+        response = api_client.post(comment_list_url, data=comment_data_from_view)
+
+        assert response.status_code == 401
+
+    @pytest.mark.parametrize("field", ["body", "player_id"])
+    def test_create_fails_without_required_fields(
+        self, field, api_client, comment_list_url, comment_data_from_view, general_user
+    ):
+        comment_data_from_view.pop(field)
+        api_client.force_authenticate(user=general_user)
+        response = api_client.post(comment_list_url, data=comment_data_from_view)
+
+        assert response.status_code == 400
+        assert field in response.data
+
+    def test_create_fails_due_to_nonexistent_player_id(
+        self, api_client, comment_list_url, comment_data_from_view, general_user
+    ):
+        nonexistent_player_id = uuid4()
+        comment_data_from_view["player_id"] = nonexistent_player_id
+
+        api_client.force_authenticate(user=general_user)
+        response = api_client.post(comment_list_url, data=comment_data_from_view)
+
+        assert response.status_code == 400
+        assert "player_id" in response.data
+
+    # ========================================================================
+    # List Action - Positive Cases
+    # ========================================================================
+    def test_list_returns_200_and_allows_anonymous_user(
+        self, api_client, comment_list_url
+    ):
+        response = api_client.get(comment_list_url)
+
+        assert response.status_code == 200
+
+    def test_list_includes_soft_deleted_comment_for_admin(
+        self, api_client, comment_list_url, admin_user, comments
+    ):
+        comment = comments[0]
+        comment.soft_delete()
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.get(comment_list_url)
+
+        ids = [item["id"] for item in response.data["results"]]
+
+        assert str(comment.id) in ids
+
+    def test_list_excludes_soft_deleted_comment_for_public(
+        self, api_client, comment_list_url, comments
+    ):
+        comment = comments[0]
+        comment.soft_delete()
+        response = api_client.get(comment_list_url)
+
+        ids = [item["id"] for item in response.data["results"]]
+
+        assert str(comment.id) not in ids
+
+    def test_list_uses_correct_serializer_and_returns_correct_response_for_public(
+        self, api_client, comment_list_url, comments
+    ):
+        response = api_client.get(comment_list_url)
+
+        comment_data = response.data["results"][0]
+        expected_fields = {"id", "body", "created_at", "updated_at", "player", "user"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        user_data = comment_data["user"]
+        user_expected_fields = {"id", "username"}
+
+        assert set(user_data.keys()) == user_expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_list_uses_correct_serializer_and_returns_correct_response_for_admin(
+        self, api_client, comment_list_url, admin_user, comments
+    ):
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.get(comment_list_url)
+
+        comment_data = response.data["results"][0]
+        expected_fields = {
+            "id",
+            "body",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+            "player",
+            "user",
+        }
+
+        assert set(comment_data.keys()) == expected_fields
+
+        user_data = comment_data["user"]
+        user_expected_fields = {"id", "username"}
+
+        assert set(user_data.keys()) == user_expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_list_returns_in_descending_order_of_created_at(
+        self, api_client, comment_list_url, comments
+    ):
+        response = api_client.get(comment_list_url)
+
+        response_created_at = [item["created_at"] for item in response.data["results"]]
+        descending_order = sorted(response_created_at, reverse=True)
+
+        assert response_created_at == descending_order
+
+    # ========================================================================
+    # Retrieve Action - Positive Cases
+    # ========================================================================
+    def test_retrieve_returns_200_and_allows_anonymous_user(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment_id = comments[0].id
+        url = comment_detail_url(comment_id)
+        response = api_client.get(url)
+
+        assert response.status_code == 200
+
+    def test_retrieve_can_get_soft_deleted_comment_for_admin(
+        self, api_client, comment_detail_url, admin_user, comments
+    ):
+        comment = comments[0]
+        comment.soft_delete()
+        comment_id = comment.id
+
+        url = comment_detail_url(comment_id)
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.get(url)
+
+        assert str(comment.id) == response.data["id"]
+
+    def test_retrieve_excludes_soft_deleted_comment_for_public(
+        self,
+        api_client,
+        comment_detail_url,
+        comments,
+    ):
+        comment = comments[0]
+        comment.soft_delete()
+        comment_id = comment.id
+
+        url = comment_detail_url(comment_id)
+        response = api_client.get(url)
+
+        assert response.status_code == 404
+
+    def test_retrieve_uses_correct_serializer_and_returns_correct_response_for_public(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        url = comment_detail_url(comment_id)
+        response = api_client.get(url)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "updated_at", "player", "user"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        user_data = comment_data["user"]
+        user_expected_fields = {"id", "username"}
+
+        assert set(user_data.keys()) == user_expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_retrieve_uses_correct_serializer_and_returns_correct_response_for_admin(
+        self, api_client, comment_detail_url, admin_user, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.get(url)
+
+        comment_data = response.data
+        expected_fields = {
+            "id",
+            "body",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+            "player",
+            "user",
+        }
+
+        assert set(comment_data.keys()) == expected_fields
+
+        user_data = comment_data["user"]
+        user_expected_fields = {"id", "username"}
+
+        assert set(user_data.keys()) == user_expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    # ========================================================================
+    # Retrieve Action - Negative Cases
+    # ========================================================================
+    def test_retrieve_returns_404_for_nonexistent_comment(
+        self, api_client, comment_detail_url
+    ):
+        nonexistent_comment_id = uuid4()
+
+        url = comment_detail_url(nonexistent_comment_id)
+        response = api_client.get(url)
+
+        assert response.status_code == 404
+
+    # ========================================================================
+    # Patch Action - Positive Cases
+    # ========================================================================
+    def test_patch_returns_200_and_allows_admin_user(
+        self, api_client, comment_detail_url, comments, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.patch(url, data={})
+
+        assert response.status_code == 200
+
+    def test_patch_returns_200_and_allows_owner(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        owner = comment.user
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        response = api_client.patch(url, data={})
+
+        assert response.status_code == 200
+
+    def test_patch_can_patch_soft_deleted_comment_with_body_for_admin(
+        self, api_client, comment_detail_url, comments, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        comment.soft_delete()
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        patch_data = {"body": "Patch Comment Body"}
+        response = api_client.patch(url, data=patch_data)
+
+        assert response.status_code == 200
+
+    def test_patch_can_patch_soft_deleted_comment_with_player_id_for_admin(
+        self, api_client, comment_detail_url, comments, players, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        comment.soft_delete()
+
+        player_id = players[1].id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        patch_data = {"player_id": player_id}
+        response = api_client.patch(url, data=patch_data)
+
+        assert response.status_code == 200
+        assert str(player_id) == response.data["player"]["id"]
+
+    def test_patch_cannot_patch_soft_deleted_comment_with_body_for_owner(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        comment.soft_delete()
+
+        owner = comment.user
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        patch_data = {"body": "Patch Comment Body"}
+        response = api_client.patch(url, data=patch_data)
+
+        assert response.status_code == 404
+
+    def test_patch_cannot_patch_soft_deleted_comment_with_player_id_for_owner(
+        self, api_client, comment_detail_url, comments, players
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        comment.soft_delete()
+
+        owner = comment.user
+
+        player_id = players[1].id
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        patch_data = {"player_id": player_id}
+        response = api_client.patch(url, data=patch_data)
+
+        assert response.status_code == 404
+
+    def test_patch_uses_correct_serializer_and_returns_correct_response_with_body_for_admin(
+        self, api_client, comment_detail_url, comments, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        patch_data = {"body": "Patch Comment Body"}
+        response = api_client.patch(url, data=patch_data)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "updated_at", "player"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_patch_uses_correct_serializer_and_returns_correct_response_with_player_id_for_admin(
+        self, api_client, comment_detail_url, comments, players, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        player_id = players[1].id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        patch_data = {"player_id": player_id}
+        response = api_client.patch(url, data=patch_data)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "updated_at", "player"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_patch_uses_correct_serializer_and_returns_correct_response_with_body_for_owner(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        owner = comment.user
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        patch_data = {"body": "Patch Comment Body"}
+        response = api_client.patch(url, data=patch_data)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "updated_at", "player"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    def test_patch_uses_correct_serializer_and_returns_correct_response_with_player_id_for_owner(
+        self, api_client, comment_detail_url, comments, players
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        owner = comment.user
+
+        player_id = players[1].id
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        patch_data = {"player_id": player_id}
+        response = api_client.patch(url, data=patch_data)
+
+        comment_data = response.data
+        expected_fields = {"id", "body", "created_at", "updated_at", "player"}
+
+        assert set(comment_data.keys()) == expected_fields
+
+        player_data = comment_data["player"]
+        player_expected_fields = {"id", "first_name", "last_name", "team"}
+
+        assert set(player_data.keys()) == player_expected_fields
+
+        team_data = player_data["team"]
+        team_expected_fields = {"id", "name"}
+
+        assert set(team_data.keys()) == team_expected_fields
+
+    # ========================================================================
+    # Patch Action - Negative Cases
+    # ========================================================================
+    def test_patch_returns_401_for_anonymous_user(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        url = comment_detail_url(comment_id)
+        response = api_client.patch(url, data={})
+
+        assert response.status_code == 401
+
+    def test_patch_returns_403_for_general_user_not_owner(
+        self, api_client, comment_detail_url, comments, general_user_2
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=general_user_2)
+        url = comment_detail_url(comment_id)
+        response = api_client.patch(url, data={})
+
+        assert response.status_code == 403
+
+    def test_patch_fails_for_nonexistent_comment(
+        self, api_client, comment_detail_url, admin_user
+    ):
+        comment_id = uuid4()
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.patch(url, data={})
+
+        assert response.status_code == 404
+
+    # ========================================================================
+    # Destroy Action - Positive Cases
+    # ========================================================================
+    def test_delete_returns_204_and_allows_super_user(
+        self, api_client, comment_detail_url, comments, super_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=super_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 204
+
+    def test_delete_returns_204_and_allows_owner(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+        owner = comment.user
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 204
+
+    def test_delete_sets_deleted_at_field_for_super_user(
+        self, api_client, comment_detail_url, comments, super_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=super_user)
+        url = comment_detail_url(comment_id)
+        api_client.delete(url)
+
+        comment.refresh_from_db()
+
+        assert comment.deleted_at is not None
+
+    def test_delete_sets_deleted_at_field_for_owner(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        owner = comment.user
+
+        api_client.force_authenticate(user=owner)
+        url = comment_detail_url(comment_id)
+        api_client.delete(url)
+
+        comment.refresh_from_db()
+
+        assert comment.deleted_at is not None
+
+    # ========================================================================
+    # Destroy Action - Negative Cases
+    # ========================================================================
+    def test_delete_returns_401_for_anonymous_user(
+        self, api_client, comment_detail_url, comments
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 401
+
+    def test_delete_returns_403_for_general_user_not_owner(
+        self, api_client, comment_detail_url, comments, general_user_2
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=general_user_2)
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 403
+
+    def test_delete_returns_403_for_admin_user(
+        self, api_client, comment_detail_url, comments, admin_user
+    ):
+        comment = comments[0]
+        comment_id = comment.id
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 403
+
+    def test_delete_fails_for_nonexistent_comment(
+        self, api_client, comment_detail_url, admin_user
+    ):
+        comment_id = uuid4()
+
+        api_client.force_authenticate(user=admin_user)
+        url = comment_detail_url(comment_id)
+        response = api_client.delete(url)
+
+        assert response.status_code == 404
