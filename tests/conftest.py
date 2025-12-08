@@ -159,6 +159,14 @@ def comment_data(db, general_user, players):
 
 
 @pytest.fixture
+def comment_data_from_view(db, players):
+    return {
+        "player_id": players[0].id,
+        "body": "Comment Body From View",
+    }
+
+
+@pytest.fixture
 def comments(db, general_user, players):
     return [
         Comment.objects.create(
