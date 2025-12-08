@@ -1,20 +1,18 @@
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
 
-from core.permissions import IsAuthenticatedOwner, IsSuperUser
+from core.permissions import IsSuperUser
 from roster.models import Comment
 
 from .models import UserAccount
 from .serializers import (
-    MeCommentListRetrieveSerializer,
-    MeCommentPatchSerializer,
+    MeCommentListSerializer,
     MePatchSerializer,
     MeRetrieveSerializer,
-    UserAccountCommentListRetrieveAdminSerializer,
-    UserAccountCommentListRetrievePublicSerializer,
-    UserAccountCommentPatchSerializer,
+    UserAccountCommentListAdminSerializer,
+    UserAccountCommentListPublicSerializer,
     UserAccountCreateSerializer,
     UserAccountListRetrieveAdminSerializer,
     UserAccountListRetrievePublicSerializer,
@@ -27,21 +25,22 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_staff:
-            return UserAccount.objects.all().order_by("-created_at")
-        return UserAccount.objects.filter(deleted_at__isnull=True).order_by(
-            "-created_at"
-        )
+            qs = UserAccount.objects.all()
+        else:
+            qs = UserAccount.objects.filter(deleted_at__isnull=True)
+
+        return qs.order_by("-created_at")
 
     def get_permissions(self):
-        if self.action in ["create", "list", "retrieve"]:
-            permission_classes = [AllowAny]
+        if self.action in ["create", "list", "retrieve", "comments"]:
+            permission_class = [AllowAny]
         elif self.action == "partial_update":
-            permission_classes = [IsAdminUser]
+            permission_class = [IsAdminUser]
         elif self.action == "destroy":
-            permission_classes = [IsSuperUser]
+            permission_class = [IsSuperUser]
         else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            permission_class = [IsAuthenticated]
+        return [permission() for permission in permission_class]
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -52,55 +51,41 @@ class UserAccountViewSet(viewsets.ModelViewSet):
             return UserAccountListRetrievePublicSerializer
         elif self.action == "partial_update":
             return UserAccountPatchSerializer
-        return UserAccountListRetrieveAdminSerializer
+        return UserAccountListRetrievePublicSerializer
 
     def perform_destroy(self, instance):
         instance.soft_delete()
 
+    @action(detail=True, methods=["get"], url_name="comments")
+    def comments(self, request, pk=None):
+        target_user = self.get_object()
 
-class UserAccountCommentViewSet(viewsets.ModelViewSet):
-    http_method_names = ["get", "patch", "delete"]
+        is_admin = request.user.is_staff
 
-    def get_queryset(self):
-        if self.request.user.is_staff:
-            return Comment.objects.filter(user=self.kwargs["user_pk"]).order_by(
-                "-created_at"
-            )
-        return Comment.objects.filter(
-            user=self.kwargs["user_pk"], deleted_at__isnull=True
-        ).order_by("-created_at")
-
-    def get_permissions(self):
-        if self.action in ["list", "retrieve"]:
-            permission_classes = [AllowAny]
-        elif self.action == "partial_update":
-            permission_classes = [IsAdminUser | IsAuthenticatedOwner]
-        elif self.action == "destroy":
-            permission_classes = [IsSuperUser | IsAuthenticatedOwner]
+        if is_admin:
+            serializer_class = UserAccountCommentListAdminSerializer
+            comment_qs = Comment.objects.filter(user=target_user)
         else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            serializer_class = UserAccountCommentListPublicSerializer
+            comment_qs = Comment.objects.filter(
+                user=target_user, deleted_at__isnull=True
+            )
 
-    def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
-            if self.request.user.is_staff:
-                return UserAccountCommentListRetrieveAdminSerializer
-            return UserAccountCommentListRetrievePublicSerializer
-        elif self.action == "partial_update":
-            return UserAccountCommentPatchSerializer
-        return UserAccountCommentListRetrievePublicSerializer
+        comments = comment_qs.order_by("-created_at")
 
-    def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        page = self.paginate_queryset(comments)
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(comments, many=True)
+
+        return Response(serializer.data)
 
 
-class MeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+class MeAPIView(generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ["get", "patch", "delete"]
     permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -109,35 +94,18 @@ class MeRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             return MePatchSerializer
         return MeRetrieveSerializer
 
+    def get_object(self):
+        return self.request.user
+
     def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
+        instance.soft_delete()
 
 
-class MeCommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    http_method_names = ["get", "patch", "delete"]
+class MeCommentAPIView(generics.ListAPIView):
+    http_method_names = ["get"]
+    serializer_class = MeCommentListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            user=self.request.user, deleted_at__isnull=True
-        ).order_by("-created_at")
-
-    def get_serializer_class(self):
-        if self.request.method == "PATCH":
-            return MeCommentPatchSerializer
-        return MeCommentListRetrieveSerializer
-
-    def perform_destroy(self, instance):
-        instance.deleted_at = timezone.now()
-        instance.save(update_fields=["deleted_at"])
-
-
-class MeCommentListView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = MeCommentListRetrieveSerializer
-
-    def get_queryset(self):
-        return Comment.objects.filter(
-            user=self.request.user, deleted_at__isnull=True
-        ).order_by("-created_at")
+        qs = Comment.objects.filter(user=self.request.user, deleted_at__isnull=True)
+        return qs.order_by("-created_at")

@@ -68,10 +68,10 @@ class TestPlayerListRetrievePublicSerializer(TestBase):
         serializer = PlayerListRetrievePublicSerializer(player)
         output = serializer.data
 
-        expected_fields = ["id", "first_name", "last_name", "team"]
+        expected_fields = ["id", "first_name", "last_name", "created_at", "team"]
         self.assert_expected_fields(output, expected_fields)
 
-        unexpected_fields = ["created_at", "updated_at", "deleted_at"]
+        unexpected_fields = ["updated_at", "deleted_at"]
         self.assert_unexpected_fields(output, unexpected_fields)
 
 

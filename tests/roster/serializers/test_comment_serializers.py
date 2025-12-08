@@ -11,12 +11,14 @@ from roster.serializers.comment import (
 
 @pytest.mark.django_db
 class TestCommentCreateSerializer(TestBase):
-    def test_success_to_validate_and_save_comment_data(self, comment_data):
+    def test_success_to_validate_and_save_comment_data(
+        self, comment_data, general_user
+    ):
         serializer = CommentCreateSerializer(data=comment_data)
 
         assert serializer.is_valid() is True
 
-        serializer.save()
+        serializer.save(user=general_user)
         output = serializer.data
 
         expected_fields = ["id", "body", "created_at", "player"]
@@ -48,7 +50,7 @@ class TestCommentCreateSerializer(TestBase):
 
         assert target_field not in validated_data
 
-    @pytest.mark.parametrize("missing_field", ["user_id", "player_id", "body"])
+    @pytest.mark.parametrize("missing_field", ["player_id", "body"])
     def test_fails_to_validate_when_missing_required_fields(
         self, missing_field, comment_data
     ):

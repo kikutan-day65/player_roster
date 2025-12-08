@@ -1,4 +1,5 @@
 import pytest
+from django.urls import reverse
 from rest_framework.test import APIClient
 
 from roster.models import Comment, Player, Team
@@ -78,6 +79,28 @@ def super_user(db):
 
 
 @pytest.fixture
+def users(db):
+    return [
+        UserAccount.objects.create_user(
+            username="user_1",
+            email="user_1@example.com",
+            password="generalUser123",
+        ),
+        UserAccount.objects.create_user(
+            username="user_2",
+            email="user_2@example.com",
+            password="generalUser123",
+        ),
+        UserAccount.objects.create_user(
+            username="user_3",
+            email="user_3@example.com",
+            password="adminUser123",
+            is_staff=True,
+        ),
+    ]
+
+
+@pytest.fixture
 def team_data():
     return {"name": "Team Name", "sport": "baseball"}
 
@@ -116,16 +139,30 @@ def players(db, teams):
                 teams[0].id,
             ),
         ),
+        Player.objects.create(
+            first_name="FirstNameThree",
+            last_name="LastNameThree",
+            team_id=str(
+                teams[0].id,
+            ),
+        ),
     ]
 
 
 @pytest.fixture
 def comment_data(db, general_user, players):
-    print(general_user.id)
     return {
         "user_id": general_user.id,
         "player_id": players[0].id,
         "body": "Comment Body",
+    }
+
+
+@pytest.fixture
+def comment_data_from_view(db, players):
+    return {
+        "player_id": players[0].id,
+        "body": "Comment Body From View",
     }
 
 
@@ -139,7 +176,98 @@ def comments(db, general_user, players):
         ),
         Comment.objects.create(
             user=general_user,
+            player=players[0],
+            body="Comment Body 1",
+        ),
+        Comment.objects.create(
+            user=general_user,
             player=players[1],
-            body="Comment Body over 100 characters" * 100,
+            body="Comment Body over 100 characters" * 10,
         ),
     ]
+
+
+@pytest.fixture
+def user_account_list_url():
+    return reverse("user_account-list")
+
+
+@pytest.fixture
+def user_account_detail_url():
+    def build_url(pk):
+        return reverse("user_account-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def user_account_comments_url():
+    def build_url(pk):
+        return reverse("user_account-comments", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def me_url():
+    return reverse("me")
+
+
+@pytest.fixture
+def me_comments_url():
+    return reverse("me_comments")
+
+
+@pytest.fixture
+def team_list_url():
+    return reverse("team-list")
+
+
+@pytest.fixture
+def team_detail_url():
+    def build_url(pk):
+        return reverse("team-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def team_players_url():
+    def build_url(pk):
+        return reverse("team-players", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def player_list_url():
+    return reverse("player-list")
+
+
+@pytest.fixture
+def player_detail_url():
+    def build_url(pk):
+        return reverse("player-detail", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def player_comments_url():
+    def build_url(pk):
+        return reverse("player-comments", args=[pk])
+
+    return build_url
+
+
+@pytest.fixture
+def comment_list_url():
+    return reverse("comment-list")
+
+
+@pytest.fixture
+def comment_detail_url():
+    def build_url(pk):
+        return reverse("comment-detail", args=[pk])
+
+    return build_url
