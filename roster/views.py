@@ -158,6 +158,8 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = CommentFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
