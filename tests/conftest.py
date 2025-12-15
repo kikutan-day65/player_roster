@@ -178,6 +178,38 @@ def players(db, teams):
 
 
 @pytest.fixture
+def player_filter_data(db, teams):
+    player_objects = [
+        Player.objects.create(
+            first_name="FistNameOne", last_name="LastNameOne", team=teams[0]
+        ),
+        Player.objects.create(
+            first_name="FistNameTwo", last_name="LastNameTwo", team=teams[1]
+        ),
+        Player.objects.create(
+            first_name="FistNameThree", last_name="LastNameThree", team=teams[2]
+        ),
+        Player.objects.create(
+            first_name="FistNameFour", last_name="LastNameFour", team=teams[2]
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for player, created_at in zip(player_objects, created_at_objects):
+        player.created_at = created_at
+
+    Player.objects.bulk_update(player_objects, fields=["created_at"])
+
+    return player_objects
+
+
+@pytest.fixture
 def comment_data(db, general_user, players):
     return {
         "user_id": general_user.id,
