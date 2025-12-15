@@ -94,6 +94,8 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 class PlayerViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PlayerFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
