@@ -155,6 +155,77 @@ class TestTeamViewSet(TestBase):
 
         assert response_created_at == descending_order
 
+    def test_list_filters_by_sport_exact(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        url = team_list_url + "?sport=baseball"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            assert item["sport"] == "baseball"
+
+    def test_list_filters_by_name_icontains(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        url = team_list_url + "?name=d"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "d" in item["name"].lower()
+
+    def test_list_filters_by_created_at_date(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        target_created_at = str(team_filter_data[0].created_at.date())
+
+        url = team_list_url + f"?created_at_date={target_created_at}"
+        response = api_client.get(url)
+
+        response_created_at = response.data["results"][0]["created_at"]
+        response_created_at_date = response_created_at.split("T")[0]
+
+        assert response.data["count"] == 1
+        assert response_created_at_date == target_created_at
+
+    def test_list_filters_by_created_at_year(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        url = team_list_url + "?created_at_year=2024"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            assert "2024" in item["created_at"]
+
+    def test_list_filters_by_created_at_year_gte(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        url = team_list_url + "?created_at_year_gte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 3
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year >= 2023
+
+    def test_list_filters_by_created_at_year_lte(
+        self, api_client, team_list_url, team_filter_data
+    ):
+        url = team_list_url + "?created_at_year_lte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year <= 2023
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
