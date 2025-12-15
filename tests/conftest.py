@@ -1,5 +1,8 @@
+from datetime import datetime
+
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from roster.models import Comment, Player, Team
@@ -110,7 +113,32 @@ def teams(db):
     return [
         Team.objects.create(name="Team Name", sport="baseball"),
         Team.objects.create(name="Team Name 2", sport="basketball"),
+        Team.objects.create(name="Team Name 3", sport="football"),
     ]
+
+
+@pytest.fixture
+def team_filter_data(db):
+    team_objects = [
+        Team.objects.create(name="Team A", sport="baseball"),
+        Team.objects.create(name="Team B", sport="basketball"),
+        Team.objects.create(name="Team C", sport="football"),
+        Team.objects.create(name="Team D", sport="baseball"),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for team, created_at in zip(team_objects, created_at_objects):
+        team.created_at = created_at
+
+    Team.objects.bulk_update(team_objects, fields=["created_at"])
+
+    return team_objects
 
 
 @pytest.fixture
