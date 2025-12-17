@@ -311,8 +311,40 @@ def comment_filter_data(db, general_user, general_user_2, players):
         timezone.make_aware(datetime(2024, 6, 1)),
     ]
 
-    for team, created_at in zip(comment_objects, created_at_objects):
-        team.created_at = created_at
+    for comment, created_at in zip(comment_objects, created_at_objects):
+        comment.created_at = created_at
+
+    Comment.objects.bulk_update(comment_objects, fields=["created_at"])
+
+    return comment_objects
+
+
+@pytest.fixture
+def me_comment_filter_data(db, general_user, player_filter_data):
+    comment_objects = [
+        Comment.objects.create(
+            user=general_user, player=player_filter_data[0], body="Comment Body One"
+        ),
+        Comment.objects.create(
+            user=general_user, player=player_filter_data[1], body="Comment Body Two"
+        ),
+        Comment.objects.create(
+            user=general_user, player=player_filter_data[2], body="Comment Body Three"
+        ),
+        Comment.objects.create(
+            user=general_user, player=player_filter_data[2], body="Comment Body Four"
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for comment, created_at in zip(comment_objects, created_at_objects):
+        comment.created_at = created_at
 
     Comment.objects.bulk_update(comment_objects, fields=["created_at"])
 
