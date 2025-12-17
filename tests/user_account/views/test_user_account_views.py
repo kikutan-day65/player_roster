@@ -174,6 +174,67 @@ class TestUserAccountViewSet(TestBase):
 
         assert response_created_at == descending_order
 
+    def test_list_filters_by_username_icontains(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        url = user_account_list_url + "?username=one"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "one" in item["username"]
+
+    def test_list_filters_by_created_at_date(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        target_created_at = str(user_filter_data[0].created_at.date())
+
+        url = user_account_list_url + f"?created_at_date={target_created_at}"
+        response = api_client.get(url)
+
+        response_created_at = response.data["results"][0]["created_at"]
+        response_created_at_date = response_created_at.split("T")[0]
+
+        assert response.data["count"] == 1
+        assert response_created_at_date == target_created_at
+
+    def test_list_filters_by_created_at_year(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        url = user_account_list_url + "?created_at_year=2024"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            assert "2024" in item["created_at"]
+
+    def test_list_filters_by_created_at_year_gte(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        url = user_account_list_url + "?created_at_year_gte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 3
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year >= 2023
+
+    def test_list_filters_by_created_at_year_lte(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        url = user_account_list_url + "?created_at_year_lte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year <= 2023
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
@@ -827,6 +888,105 @@ class TestMeCommentAPIView(TestBase):
         descending_order = sorted(response_created_at, reverse=True)
 
         assert response_created_at == descending_order
+
+    def test_list_team_name_icontains(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?team_name=2"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "2" in item["player"]["team"]["name"]
+
+    def test_list_player_first_name_icontains(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?player_first_name=one"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "one" in item["player"]["first_name"].lower()
+
+    def test_list_player_last_name_icontains(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?player_last_name=one"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "one" in item["player"]["last_name"].lower()
+
+    def test_list_filters_by_created_at_date(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        target_created_at = str(me_comment_filter_data[0].created_at.date())
+
+        url = me_comments_url + f"?created_at_date={target_created_at}"
+        response = api_client.get(url)
+
+        response_created_at = response.data["results"][0]["created_at"]
+        response_created_at_date = response_created_at.split("T")[0]
+
+        assert response.data["count"] == 1
+        assert response_created_at_date == target_created_at
+
+    def test_list_filters_by_created_at_year(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?created_at_year=2024"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            assert "2024" in item["created_at"]
+
+    def test_list_filters_by_created_at_year_gte(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?created_at_year_gte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 3
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year >= 2023
+
+    def test_list_filters_by_created_at_year_lte(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?created_at_year_lte=2023"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            year = int(item["created_at"][:4])
+            assert year <= 2023
 
     # ========================================================================
     # List Action - Negative Cases
