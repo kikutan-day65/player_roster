@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -6,6 +7,7 @@ from rest_framework.response import Response
 from core.permissions import IsSuperUser
 from roster.models import Comment
 
+from .filters import MeCommentFilter, UserAccountFilter
 from .models import UserAccount
 from .serializers import (
     MeCommentListSerializer,
@@ -22,6 +24,8 @@ from .serializers import (
 
 class UserAccountViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = UserAccountFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -105,6 +109,9 @@ class MeCommentAPIView(generics.ListAPIView):
     http_method_names = ["get"]
     serializer_class = MeCommentListSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = MeCommentFilter
 
     def get_queryset(self):
         qs = Comment.objects.filter(user=self.request.user, deleted_at__isnull=True)
