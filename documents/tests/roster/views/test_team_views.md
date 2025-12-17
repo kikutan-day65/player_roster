@@ -47,6 +47,15 @@
 
 -   [x] Results are returned in descending order of created_at
 
+#### Filtering
+
+-   [x] Result is returned with filtering `sport` (`exact`)
+-   [x] Result is returned with filtering `name` (`icontains`)
+-   [x] Result is returned with filtering `created_at` (`date`)
+-   [x] Result is returned with filtering `created_at_year` (`year`)
+-   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
+-   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
+
 ### Negative cases
 
 -   [x] No negative cases for list action

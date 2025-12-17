@@ -45,6 +45,14 @@
 
 -   [x] Results are returned in descending order of created_at
 
+#### Filtering
+
+-   [x] Result is returned with filtering `username` (`icontains`)
+-   [x] Result is returned with filtering `created_at` (`date`)
+-   [x] Result is returned with filtering `created_at_year` (`year`)
+-   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
+-   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
+
 ### Negative cases
 
 -   [x] No negative cases for list action
@@ -227,6 +235,16 @@
 #### Ordering
 
 -   [x] Results are returned in descending order of `created_at`
+
+#### Filtering
+
+-   [x] Result is returned with filtering `team_name` (`icontains`)
+-   [x] Result is returned with filtering `player_first_name` (`icontains`)
+-   [x] Result is returned with filtering `player_last_name` (`icontains`)
+-   [x] Result is returned with filtering `created_at` (`date`)
+-   [x] Result is returned with filtering `created_at_year` (`year`)
+-   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
+-   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
 
 ### Negative cases
 

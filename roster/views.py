@@ -1,3 +1,4 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
@@ -5,6 +6,7 @@ from rest_framework.response import Response
 
 from core.permissions import IsAuthenticatedOwner, IsSuperUser
 
+from .filters import CommentFilter, PlayerFilter, TeamFilter
 from .models import Comment, Player, Team
 from .serializers.comment import (
     CommentCreateSerializer,
@@ -32,6 +34,8 @@ from .serializers.team import (
 
 class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = TeamFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -92,6 +96,8 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 class PlayerViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = PlayerFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -154,6 +160,8 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = CommentFilter
 
     def get_queryset(self):
         if self.request.user.is_staff:
