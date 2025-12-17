@@ -104,6 +104,46 @@ def users(db):
 
 
 @pytest.fixture
+def user_filter_data(db):
+    user_objects = [
+        UserAccount.objects.create(
+            username="user_one",
+            email="user_one@example.com",
+            password="userOne123",
+        ),
+        UserAccount.objects.create(
+            username="user_two",
+            email="user_two@example.com",
+            password="userTwo123",
+        ),
+        UserAccount.objects.create(
+            username="user_three",
+            email="user_three@example.com",
+            password="userThree123",
+        ),
+        UserAccount.objects.create(
+            username="user_four",
+            email="user_four@example.com",
+            password="userFour123",
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for user, created_at in zip(user_objects, created_at_objects):
+        user.created_at = created_at
+
+    UserAccount.objects.bulk_update(user_objects, fields=["created_at"])
+
+    return user_objects
+
+
+@pytest.fixture
 def team_data():
     return {"name": "Team Name", "sport": "baseball"}
 
