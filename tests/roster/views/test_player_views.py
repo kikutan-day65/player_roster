@@ -261,6 +261,42 @@ class TestPlayerViewSet(TestBase):
             year = int(item["created_at"][:4])
             assert year <= 2023
 
+    def test_list_searches_by_first_name(
+        self, api_client, player_list_url, player_filter_data
+    ):
+        url = player_list_url + "?search=hello"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "hello" in item["first_name"].lower()
+
+    def test_list_searches_by_last_name(
+        self, api_client, player_list_url, player_filter_data
+    ):
+        url = player_list_url + "?search=bye"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "bye" in item["last_name"].lower()
+
+    def test_list_searches_by_team_name(
+        self, api_client, player_list_url, player_filter_data
+    ):
+        url = player_list_url + "?search=2"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "2" in item["team"]["name"].lower()
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
