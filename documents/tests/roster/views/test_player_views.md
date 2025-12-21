@@ -61,6 +61,12 @@
 -   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
 -   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
 
+#### Searching
+
+-   [x] Result is returned with search field `first_name`
+-   [x] Result is returned with search field `last_name`
+-   [x] Result is returned with search field `team__name`
+
 ### Negative cases
 
 -   [x] No negative cases for list action
