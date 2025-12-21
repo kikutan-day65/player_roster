@@ -267,6 +267,54 @@ class TestCommentViewSet(TestBase):
             year = int(item["created_at"][:4])
             assert year <= 2023
 
+    def test_list_searches_by_body(
+        self, api_client, comment_list_url, comment_filter_data
+    ):
+        url = comment_list_url + "?search=example"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "example" in item["body"].lower()
+
+    def test_list_searches_by_user_username(
+        self, api_client, comment_list_url, comment_filter_data
+    ):
+        url = comment_list_url + "?search=2"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 2
+
+        for item in response.data["results"]:
+            assert "2" in item["user"]["username"]
+
+    def test_list_searches_by_player_first_name(
+        self, api_client, comment_list_url, comment_filter_data
+    ):
+        url = comment_list_url + "?search=hello"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "hello" in item["player"]["first_name"].lower()
+
+    def test_list_searches_by_player_last_name(
+        self, api_client, comment_list_url, comment_filter_data
+    ):
+        url = comment_list_url + "?search=bye"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "bye" in item["player"]["last_name"].lower()
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
