@@ -53,6 +53,10 @@
 -   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
 -   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
 
+#### Searching
+
+-   [x] Result is returned with search fields with `username`
+
 ### Negative cases
 
 -   [x] No negative cases for list action
@@ -245,6 +249,12 @@
 -   [x] Result is returned with filtering `created_at_year` (`year`)
 -   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
 -   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
+
+#### Searching
+
+-   [x] Result is returned with search fields `body`
+-   [x] Result is returned with search fields `player__first_name`
+-   [x] Result is returned with search fields `player__last_name`
 
 ### Negative cases
 

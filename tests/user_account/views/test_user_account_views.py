@@ -235,6 +235,17 @@ class TestUserAccountViewSet(TestBase):
             year = int(item["created_at"][:4])
             assert year <= 2023
 
+    def test_list_searches_by_username(
+        self, api_client, user_account_list_url, user_filter_data
+    ):
+        url = user_account_list_url + "?search=one"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "one" in item["username"]
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
@@ -987,6 +998,45 @@ class TestMeCommentAPIView(TestBase):
         for item in response.data["results"]:
             year = int(item["created_at"][:4])
             assert year <= 2023
+
+    def test_list_searches_by_body(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?search=example"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "examples" in item["body"]
+
+    def test_list_searches_by_player_first_name(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?search=hello"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "hello" in item["player"]["first_name"].lower()
+
+    def test_list_searches_by_player_last_name(
+        self, api_client, me_comments_url, general_user, me_comment_filter_data
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?search=bye"
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "bye" in item["player"]["last_name"].lower()
 
     # ========================================================================
     # List Action - Negative Cases

@@ -1,5 +1,5 @@
-from django_filters import rest_framework as filters
-from rest_framework import viewsets
+from django_filters import rest_framework as django_filters
+from rest_framework import filters, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -34,8 +34,9 @@ from .serializers.team import (
 
 class TeamViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TeamFilter
+    search_fields = ["name"]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -96,8 +97,9 @@ class TeamViewSet(viewsets.ModelViewSet):
 
 class PlayerViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = PlayerFilter
+    search_fields = ["first_name", "last_name", "team__name"]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -160,8 +162,14 @@ class PlayerViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = CommentFilter
+    search_fields = [
+        "body",
+        "user__username",
+        "player__first_name",
+        "player__last_name",
+    ]
 
     def get_queryset(self):
         if self.request.user.is_staff:

@@ -226,6 +226,16 @@ class TestTeamViewSet(TestBase):
             year = int(item["created_at"][:4])
             assert year <= 2023
 
+    def test_list_searches_by_name(self, api_client, team_list_url, team_filter_data):
+        url = team_list_url + "?search=d"
+
+        response = api_client.get(url)
+
+        assert response.data["count"] == 1
+
+        for item in response.data["results"]:
+            assert "d" in item["name"].lower()
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================

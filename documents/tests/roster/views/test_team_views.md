@@ -56,6 +56,10 @@
 -   [x] Result is returned with filtering `created_at_year_gte` (`year__gte`)
 -   [x] Result is returned with filtering `created_at_year_lte` (`year__lte`)
 
+#### Searching
+
+-   [x] Result is returned with search field `name`
+
 ### Negative cases
 
 -   [x] No negative cases for list action

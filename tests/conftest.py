@@ -201,8 +201,8 @@ def players(db, teams):
             ),
         ),
         Player.objects.create(
-            first_name="FirstNameTwo",
-            last_name="LastNameTwo",
+            first_name="FirstNameTwoHello",
+            last_name="LastNameTwoBye",
             team_id=str(
                 teams[0].id,
             ),
@@ -224,7 +224,7 @@ def player_filter_data(db, teams):
             first_name="FistNameOne", last_name="LastNameOne", team=teams[0]
         ),
         Player.objects.create(
-            first_name="FistNameTwo", last_name="LastNameTwo", team=teams[1]
+            first_name="FistNameTwoHello", last_name="LastNameTwoBye", team=teams[1]
         ),
         Player.objects.create(
             first_name="FistNameThree", last_name="LastNameThree", team=teams[2]
@@ -300,7 +300,9 @@ def comment_filter_data(db, general_user, general_user_2, players):
             user=general_user_2, player=players[2], body="Comment Body Three"
         ),
         Comment.objects.create(
-            user=general_user_2, player=players[2], body="Comment Body Four"
+            user=general_user_2,
+            player=players[2],
+            body="Comment Body Four. This is one of the examples",
         ),
     ]
 
@@ -332,7 +334,9 @@ def me_comment_filter_data(db, general_user, player_filter_data):
             user=general_user, player=player_filter_data[2], body="Comment Body Three"
         ),
         Comment.objects.create(
-            user=general_user, player=player_filter_data[2], body="Comment Body Four"
+            user=general_user,
+            player=player_filter_data[2],
+            body="Comment Body Four. This is one of the examples",
         ),
     ]
 

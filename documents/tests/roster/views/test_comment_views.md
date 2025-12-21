@@ -15,6 +15,13 @@
 -   [x] Nested `player` contains expected fields (`id`, `first_name`, `last_name`, `team`)
 -   [x] Nested `team` contains expected fields (`id`, `name`)
 
+#### Searching
+
+-   [x] Result is returned with search field `body`
+-   [x] Result is returned with search field `user__username`
+-   [x] Result is returned with search field `player__first_name`
+-   [x] Result is returned with search field `player__last_name`
+
 ### Negative cases
 
 -   [x] Returns 401 for anonymous user
