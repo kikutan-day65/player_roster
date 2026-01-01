@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from core.mixins.throttles import UserRoleBasedThrottleMixin
 from core.permissions import IsSuperUser
 from roster.models import Comment
 
@@ -22,7 +23,7 @@ from .serializers import (
 )
 
 
-class UserAccountViewSet(viewsets.ModelViewSet):
+class UserAccountViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = UserAccountFilter
@@ -88,7 +89,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class MeAPIView(generics.RetrieveUpdateDestroyAPIView):
+class MeAPIView(UserRoleBasedThrottleMixin, generics.RetrieveUpdateDestroyAPIView):
     http_method_names = ["get", "patch", "delete"]
     permission_classes = [IsAuthenticated]
 
@@ -106,7 +107,7 @@ class MeAPIView(generics.RetrieveUpdateDestroyAPIView):
         instance.soft_delete()
 
 
-class MeCommentAPIView(generics.ListAPIView):
+class MeCommentAPIView(UserRoleBasedThrottleMixin, generics.ListAPIView):
     http_method_names = ["get"]
     serializer_class = MeCommentListSerializer
     permission_classes = [IsAuthenticated]

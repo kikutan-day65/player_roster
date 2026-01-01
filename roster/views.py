@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from core.mixins.throttles import UserRoleBasedThrottleMixin
 from core.permissions import IsAuthenticatedOwner, IsSuperUser
 
 from .filters import CommentFilter, PlayerFilter, TeamFilter
@@ -32,7 +33,7 @@ from .serializers.team import (
 )
 
 
-class TeamViewSet(viewsets.ModelViewSet):
+class TeamViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = TeamFilter
@@ -95,7 +96,7 @@ class TeamViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class PlayerViewSet(viewsets.ModelViewSet):
+class PlayerViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = PlayerFilter
@@ -160,7 +161,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
+class CommentViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
     filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
     filterset_class = CommentFilter
