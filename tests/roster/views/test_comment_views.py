@@ -315,6 +315,43 @@ class TestCommentViewSet(TestBase):
         for item in response.data["results"]:
             assert "bye" in item["player"]["last_name"].lower()
 
+    def test_list_throttles_for_anonymous_user(
+        self, api_client, comment_list_url, comments
+    ):
+        response_1 = api_client.get(comment_list_url)
+        response_2 = api_client.get(comment_list_url)
+        response_3 = api_client.get(comment_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_list_throttles_for_general_user(
+        self, api_client, comment_list_url, comments, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        response_1 = api_client.get(comment_list_url)
+        response_2 = api_client.get(comment_list_url)
+        response_3 = api_client.get(comment_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_list_throttles_for_admin_user(
+        self, api_client, comment_list_url, comments, admin_user
+    ):
+        api_client.force_authenticate(user=admin_user)
+
+        response_1 = api_client.get(comment_list_url)
+        response_2 = api_client.get(comment_list_url)
+        response_3 = api_client.get(comment_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================

@@ -246,6 +246,43 @@ class TestUserAccountViewSet(TestBase):
         for item in response.data["results"]:
             assert "one" in item["username"]
 
+    def test_list_throttles_for_anonymous_user(
+        self, api_client, user_account_list_url, users
+    ):
+        response_1 = api_client.get(user_account_list_url)
+        response_2 = api_client.get(user_account_list_url)
+        response_3 = api_client.get(user_account_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_list_throttles_for_general_user(
+        self, api_client, user_account_list_url, users, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        response_1 = api_client.get(user_account_list_url)
+        response_2 = api_client.get(user_account_list_url)
+        response_3 = api_client.get(user_account_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_list_throttles_for_admin_user(
+        self, api_client, user_account_list_url, users, admin_user
+    ):
+        api_client.force_authenticate(user=admin_user)
+
+        response_1 = api_client.get(user_account_list_url)
+        response_2 = api_client.get(user_account_list_url)
+        response_3 = api_client.get(user_account_list_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
     # ========================================================================
     # Retrieve Action - Positive Cases
     # ========================================================================
@@ -695,6 +732,32 @@ class TestMeAPIView(TestBase):
 
         assert set(response.data.keys()) == expected_fields
 
+    def test_retrieve_throttles_for_general_user(
+        self, api_client, me_url, users, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        response_1 = api_client.get(me_url)
+        response_2 = api_client.get(me_url)
+        response_3 = api_client.get(me_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_retrieve_throttles_for_admin_user(
+        self, api_client, me_url, users, admin_user
+    ):
+        api_client.force_authenticate(user=admin_user)
+
+        response_1 = api_client.get(me_url)
+        response_2 = api_client.get(me_url)
+        response_3 = api_client.get(me_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
     # ========================================================================
     # Retrieve Action - Negative Cases
     # ========================================================================
@@ -1037,6 +1100,30 @@ class TestMeCommentAPIView(TestBase):
 
         for item in response.data["results"]:
             assert "bye" in item["player"]["last_name"].lower()
+
+    def test_list_throttles_for_general_user(
+        self, api_client, me_url, users, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        response_1 = api_client.get(me_url)
+        response_2 = api_client.get(me_url)
+        response_3 = api_client.get(me_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
+
+    def test_list_throttles_for_admin_user(self, api_client, me_url, users, admin_user):
+        api_client.force_authenticate(user=admin_user)
+
+        response_1 = api_client.get(me_url)
+        response_2 = api_client.get(me_url)
+        response_3 = api_client.get(me_url)
+
+        assert response_1.status_code == 200
+        assert response_2.status_code == 200
+        assert response_3.status_code == 429
 
     # ========================================================================
     # List Action - Negative Cases
