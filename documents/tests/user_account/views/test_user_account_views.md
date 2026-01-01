@@ -57,6 +57,26 @@
 
 -   [x] Result is returned with search fields with `username`
 
+#### Throttling
+
+##### Anonymous User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### General User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### Admin User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
 ### Negative cases
 
 -   [x] No negative cases for list action
@@ -173,6 +193,20 @@
 -   [x] Allows authenticated user
 -   [x] `get_object()` returns the request user
 
+#### Throttling
+
+##### General User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### Admin User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
 #### Serializer
 
 -   [x] Uses correct serializer
@@ -224,6 +258,20 @@
 
 -   [x] Returns 200
 -   [x] Allows authenticated user
+
+#### Throttling
+
+##### General User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### Admin User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
 
 #### Queryset
 

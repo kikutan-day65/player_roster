@@ -67,6 +67,26 @@
 -   [x] Result is returned with search field `last_name`
 -   [x] Result is returned with search field `team__name`
 
+#### Throttling
+
+##### Anonymous User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### General User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
+##### Admin User
+
+-   [x] Returns 200 for the first request
+-   [x] Returns 200 for the second request
+-   [x] Returns 429 for the third request
+
 ### Negative cases
 
 -   [x] No negative cases for list action
