@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from django.core.cache import cache
 from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
@@ -12,6 +13,15 @@ from user_account.models import UserAccount
 @pytest.fixture
 def api_client():
     return APIClient()
+
+
+@pytest.fixture(autouse=True)
+def test_throttle_settings(settings):
+    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["anon"] = "2/minute"
+    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["general"] = "2/minute"
+    settings.REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]["admin"] = "2/minute"
+
+    cache.clear()
 
 
 @pytest.fixture
