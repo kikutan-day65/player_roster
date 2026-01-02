@@ -80,6 +80,13 @@
 -   [x] Returns 200 for the second request
 -   [x] Returns 429 for the third request
 
+#### Ordering filter
+
+-   [x] Results are returned in ascending order of `name` field
+-   [x] Results are returned in descending order of `name` field
+-   [x] Results are returned in ascending order of `created_at` field
+-   [x] Results are returned in descending order of `created_at` field
+
 ### Negative cases
 
 -   [x] No negative cases for list action

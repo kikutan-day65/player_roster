@@ -90,6 +90,19 @@
 -   [x] Returns 200 for the second request
 -   [x] Returns 429 for the third request
 
+#### Ordering filter
+
+-   [x] Results are returned in ascending order of `user__username` field
+-   [x] Results are returned in descending order of `user__username` field
+-   [x] Results are returned in ascending order of `player__first_name` field
+-   [x] Results are returned in descending order of `player__first_name` field
+-   [x] Results are returned in ascending order of `player__last_name` field
+-   [x] Results are returned in descending order of `player__last_name` field
+-   [x] Results are returned in ascending order of `player__team__name` field
+-   [x] Results are returned in descending order of `player__team__name` field
+-   [x] Results are returned in ascending order of `created_at` field
+-   [x] Results are returned in descending order of `created_at` field
+
 ### Negative cases
 
 -   [x] No negative cases for list action

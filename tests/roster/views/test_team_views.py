@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import pytest
+from django.utils.dateparse import parse_datetime
 
 from core.tests.test_base import TestBase
 from roster.models import Team
@@ -270,6 +271,62 @@ class TestTeamViewSet(TestBase):
         assert response_1.status_code == 200
         assert response_2.status_code == 200
         assert response_3.status_code == 429
+
+    def test_list_filters_ascending_order_of_name_field(
+        self, api_client, team_list_url, team_ordering_filter_data
+    ):
+        url = team_list_url + "?ordering=name"
+        response = api_client.get(url)
+
+        names = [item["name"] for item in response.data["results"]]
+
+        ascending = sorted([team.name for team in team_ordering_filter_data])
+
+        assert names == ascending
+
+    def test_list_filters_descending_order_of_name_field(
+        self, api_client, team_list_url, team_ordering_filter_data
+    ):
+        url = team_list_url + "?ordering=-name"
+        response = api_client.get(url)
+
+        names = [item["name"] for item in response.data["results"]]
+
+        descending = sorted(
+            [team.name for team in team_ordering_filter_data], reverse=True
+        )
+
+        assert names == descending
+
+    def test_list_filters_ascending_order_of_created_at_field(
+        self, api_client, team_list_url, team_ordering_filter_data
+    ):
+        url = team_list_url + "?ordering=created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        ascending = sorted([team.created_at for team in team_ordering_filter_data])
+
+        assert created_at_data == ascending
+
+    def test_list_filters_descending_order_of_created_at_field(
+        self, api_client, team_list_url, team_ordering_filter_data
+    ):
+        url = team_list_url + "?ordering=-created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        descending = sorted(
+            [team.created_at for team in team_ordering_filter_data], reverse=True
+        )
+
+        assert created_at_data == descending
 
     # ========================================================================
     # Retrieve Action - Positive Cases

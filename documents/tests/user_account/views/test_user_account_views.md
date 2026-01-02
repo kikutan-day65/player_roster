@@ -77,6 +77,13 @@
 -   [x] Returns 200 for the second request
 -   [x] Returns 429 for the third request
 
+#### Ordering filter
+
+-   [x] Results are returned in ascending order of `username` field
+-   [x] Results are returned in descending order of `username` field
+-   [x] Results are returned in ascending order of `created_at` field
+-   [x] Results are returned in descending order of `created_at` field
+
 ### Negative cases
 
 -   [x] No negative cases for list action
@@ -303,6 +310,15 @@
 -   [x] Result is returned with search fields `body`
 -   [x] Result is returned with search fields `player__first_name`
 -   [x] Result is returned with search fields `player__last_name`
+
+#### Ordering filter
+
+-   [x] Results are returned in ascending order of `player__first_name` field
+-   [x] Results are returned in descending order of `player__first_name` field
+-   [x] Results are returned in ascending order of `player__last_name` field
+-   [x] Results are returned in descending order of `player__last_name` field
+-   [x] Results are returned in ascending order of `created_at` field
+-   [x] Results are returned in descending order of `created_at` field
 
 ### Negative cases
 
