@@ -154,6 +154,46 @@ def user_filter_data(db):
 
 
 @pytest.fixture
+def user_ordering_filter_data(db):
+    user_objects = [
+        UserAccount.objects.create(
+            username="alpha",
+            email="user_one@example.com",
+            password="userOne123",
+        ),
+        UserAccount.objects.create(
+            username="beta",
+            email="user_two@example.com",
+            password="userTwo123",
+        ),
+        UserAccount.objects.create(
+            username="delta",
+            email="user_four@example.com",
+            password="userFour123",
+        ),
+        UserAccount.objects.create(
+            username="charlie",
+            email="user_three@example.com",
+            password="userThree123",
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for user, created_at in zip(user_objects, created_at_objects):
+        user.created_at = created_at
+
+    UserAccount.objects.bulk_update(user_objects, fields=["created_at"])
+
+    return user_objects
+
+
+@pytest.fixture
 def team_data():
     return {"name": "Team Name", "sport": "baseball"}
 
@@ -174,6 +214,30 @@ def team_filter_data(db):
         Team.objects.create(name="Team B", sport="basketball"),
         Team.objects.create(name="Team C", sport="football"),
         Team.objects.create(name="Team D", sport="baseball"),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for team, created_at in zip(team_objects, created_at_objects):
+        team.created_at = created_at
+
+    Team.objects.bulk_update(team_objects, fields=["created_at"])
+
+    return team_objects
+
+
+@pytest.fixture
+def team_ordering_filter_data(db):
+    team_objects = [
+        Team.objects.create(name="Alpha", sport="baseball"),
+        Team.objects.create(name="Beta", sport="basketball"),
+        Team.objects.create(name="Zeta", sport="baseball"),
+        Team.objects.create(name="Delta", sport="football"),
     ]
 
     created_at_objects = [
@@ -241,6 +305,46 @@ def player_filter_data(db, teams):
         ),
         Player.objects.create(
             first_name="FistNameFour", last_name="LastNameFour", team=teams[2]
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for player, created_at in zip(player_objects, created_at_objects):
+        player.created_at = created_at
+
+    Player.objects.bulk_update(player_objects, fields=["created_at"])
+
+    return player_objects
+
+
+@pytest.fixture
+def player_ordering_filter_data(db, team_ordering_filter_data):
+    player_objects = [
+        Player.objects.create(
+            first_name="Alex",
+            last_name="Anderson",
+            team=team_ordering_filter_data[0],
+        ),
+        Player.objects.create(
+            first_name="Ben",
+            last_name="Brown",
+            team=team_ordering_filter_data[1],
+        ),
+        Player.objects.create(
+            first_name="Dan",
+            last_name="Davis",
+            team=team_ordering_filter_data[3],
+        ),
+        Player.objects.create(
+            first_name="Chris",
+            last_name="Clark",
+            team=team_ordering_filter_data[2],
         ),
     ]
 
@@ -332,6 +436,48 @@ def comment_filter_data(db, general_user, general_user_2, players):
 
 
 @pytest.fixture
+def comment_ordering_filter_data(
+    db, player_ordering_filter_data, user_ordering_filter_data
+):
+    comment_objects = [
+        Comment.objects.create(
+            user=user_ordering_filter_data[0],
+            player=player_ordering_filter_data[0],
+            body="Comment Body One",
+        ),
+        Comment.objects.create(
+            user=user_ordering_filter_data[1],
+            player=player_ordering_filter_data[1],
+            body="Comment Body Two",
+        ),
+        Comment.objects.create(
+            user=user_ordering_filter_data[3],
+            player=player_ordering_filter_data[3],
+            body="Comment Body Four. This is one of the examples",
+        ),
+        Comment.objects.create(
+            user=user_ordering_filter_data[2],
+            player=player_ordering_filter_data[2],
+            body="Comment Body Three",
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for comment, created_at in zip(comment_objects, created_at_objects):
+        comment.created_at = created_at
+
+    Comment.objects.bulk_update(comment_objects, fields=["created_at"])
+
+    return comment_objects
+
+
+@pytest.fixture
 def me_comment_filter_data(db, general_user, player_filter_data):
     comment_objects = [
         Comment.objects.create(
@@ -347,6 +493,46 @@ def me_comment_filter_data(db, general_user, player_filter_data):
             user=general_user,
             player=player_filter_data[2],
             body="Comment Body Four. This is one of the examples",
+        ),
+    ]
+
+    created_at_objects = [
+        timezone.make_aware(datetime(2022, 1, 1)),
+        timezone.make_aware(datetime(2023, 1, 1)),
+        timezone.make_aware(datetime(2024, 1, 1)),
+        timezone.make_aware(datetime(2024, 6, 1)),
+    ]
+
+    for comment, created_at in zip(comment_objects, created_at_objects):
+        comment.created_at = created_at
+
+    Comment.objects.bulk_update(comment_objects, fields=["created_at"])
+
+    return comment_objects
+
+
+@pytest.fixture
+def me_comment_ordering_filter_data(db, general_user, player_ordering_filter_data):
+    comment_objects = [
+        Comment.objects.create(
+            user=general_user,
+            player=player_ordering_filter_data[0],
+            body="Comment Body One",
+        ),
+        Comment.objects.create(
+            user=general_user,
+            player=player_ordering_filter_data[1],
+            body="Comment Body Two",
+        ),
+        Comment.objects.create(
+            user=general_user,
+            player=player_ordering_filter_data[3],
+            body="Comment Body Four. This is one of the examples",
+        ),
+        Comment.objects.create(
+            user=general_user,
+            player=player_ordering_filter_data[2],
+            body="Comment Body Three",
         ),
     ]
 
