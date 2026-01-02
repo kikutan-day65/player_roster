@@ -25,9 +25,14 @@ from .serializers import (
 
 class UserAccountViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (
+        django_filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     filterset_class = UserAccountFilter
     search_fields = ["username"]
+    ordering_fields = ["username", "created_at"]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -112,9 +117,14 @@ class MeCommentAPIView(UserRoleBasedThrottleMixin, generics.ListAPIView):
     serializer_class = MeCommentListSerializer
     permission_classes = [IsAuthenticated]
 
-    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (
+        django_filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     filterset_class = MeCommentFilter
     search_fields = ["body", "player__first_name", "player__last_name"]
+    ordering_fields = ["player__first_name", "player__last_name", "created_at"]
 
     def get_queryset(self):
         qs = Comment.objects.filter(user=self.request.user, deleted_at__isnull=True)

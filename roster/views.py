@@ -35,9 +35,14 @@ from .serializers.team import (
 
 class TeamViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (
+        django_filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     filterset_class = TeamFilter
     search_fields = ["name"]
+    ordering_fields = ["name", "created_at"]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -98,9 +103,14 @@ class TeamViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
 
 class PlayerViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (
+        django_filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     filterset_class = PlayerFilter
     search_fields = ["first_name", "last_name", "team__name"]
+    ordering_fields = ["team__name", "first_name", "last_name", "created_at"]
 
     def get_queryset(self):
         if self.request.user.is_staff:
@@ -163,13 +173,24 @@ class PlayerViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
 
 class CommentViewSet(UserRoleBasedThrottleMixin, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete"]
-    filter_backends = (django_filters.DjangoFilterBackend, filters.SearchFilter)
+    filter_backends = (
+        django_filters.DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter,
+    )
     filterset_class = CommentFilter
     search_fields = [
         "body",
         "user__username",
         "player__first_name",
         "player__last_name",
+    ]
+    ordering_fields = [
+        "user__username",
+        "player__first_name",
+        "player__last_name",
+        "player__team__name",
+        "created_at",
     ]
 
     def get_queryset(self):
