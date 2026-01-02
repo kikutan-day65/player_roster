@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import pytest
+from django.utils.dateparse import parse_datetime
 
 from core.tests.test_base import TestBase
 from roster.models import Player
@@ -333,6 +334,136 @@ class TestPlayerViewSet(TestBase):
         assert response_1.status_code == 200
         assert response_2.status_code == 200
         assert response_3.status_code == 429
+
+    def test_list_filters_ascending_order_of_team_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=team__name"
+        response = api_client.get(url)
+
+        names = [item["team"]["name"] for item in response.data["results"]]
+
+        ascending = sorted([player.team.name for player in player_ordering_filter_data])
+
+        assert names == ascending
+
+    def test_list_filters_descending_order_of_team_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=-team__name"
+        response = api_client.get(url)
+
+        names = [item["team"]["name"] for item in response.data["results"]]
+
+        descending = sorted(
+            [player.team.name for player in player_ordering_filter_data], reverse=True
+        )
+
+        assert names == descending
+
+    def test_list_filters_ascending_order_of_first_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=first_name"
+        response = api_client.get(url)
+
+        first_names = [item["first_name"] for item in response.data["results"]]
+
+        ascending = sorted(
+            [player.first_name for player in player_ordering_filter_data]
+        )
+
+        assert first_names == ascending
+
+    def test_list_filters_descending_order_of_first_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=-first_name"
+        response = api_client.get(url)
+
+        last_names = [item["first_name"] for item in response.data["results"]]
+
+        descending = sorted(
+            [player.first_name for player in player_ordering_filter_data], reverse=True
+        )
+
+        assert last_names == descending
+
+    def test_list_filters_ascending_order_of_last_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=last_name"
+        response = api_client.get(url)
+
+        last_names = [item["last_name"] for item in response.data["results"]]
+
+        ascending = sorted([player.last_name for player in player_ordering_filter_data])
+
+        assert last_names == ascending
+
+    def test_list_filters_descending_order_of_last_name_field(
+        self,
+        api_client,
+        player_list_url,
+        player_ordering_filter_data,
+    ):
+        url = player_list_url + "?ordering=-last_name"
+        response = api_client.get(url)
+
+        last_names = [item["last_name"] for item in response.data["results"]]
+
+        descending = sorted(
+            [player.last_name for player in player_ordering_filter_data], reverse=True
+        )
+
+        assert last_names == descending
+
+    def test_list_filters_ascending_order_of_created_at_field(
+        self, api_client, player_list_url, player_ordering_filter_data
+    ):
+        url = player_list_url + "?ordering=created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        ascending = sorted(
+            [player.created_at for player in player_ordering_filter_data]
+        )
+
+        assert created_at_data == ascending
+
+    def test_list_filters_descending_order_of_created_at_field(
+        self, api_client, player_list_url, player_ordering_filter_data
+    ):
+        url = player_list_url + "?ordering=-created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        descending = sorted(
+            [player.created_at for player in player_ordering_filter_data], reverse=True
+        )
+
+        assert created_at_data == descending
 
     # ========================================================================
     # Retrieve Action - Positive Cases

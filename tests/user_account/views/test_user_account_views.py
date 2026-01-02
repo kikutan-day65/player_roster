@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 import pytest
+from django.utils.dateparse import parse_datetime
 
 from core.tests.test_base import TestBase
 from user_account.models import UserAccount
@@ -688,6 +689,70 @@ class TestUserAccountViewSet(TestBase):
 
         assert response_created_at == descending_order
 
+    def test_list_filters_ascending_order_of_username_field(
+        self,
+        api_client,
+        user_account_list_url,
+        user_ordering_filter_data,
+    ):
+        url = user_account_list_url + "?ordering=username"
+        response = api_client.get(url)
+
+        usernames = [item["username"] for item in response.data["results"]]
+
+        ascending = sorted([user.username for user in user_ordering_filter_data])
+
+        assert usernames == ascending
+
+    def test_list_filters_descending_order_of_username_field(
+        self,
+        api_client,
+        user_account_list_url,
+        user_ordering_filter_data,
+    ):
+        url = user_account_list_url + "?ordering=-username"
+        response = api_client.get(url)
+
+        usernames = [item["username"] for item in response.data["results"]]
+
+        descending = sorted(
+            [user.username for user in user_ordering_filter_data],
+            reverse=True,
+        )
+
+        assert usernames == descending
+
+    def test_list_filters_ascending_order_of_created_at_field(
+        self, api_client, user_account_list_url, user_ordering_filter_data
+    ):
+        url = user_account_list_url + "?ordering=created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        ascending = sorted([user.created_at for user in user_ordering_filter_data])
+
+        assert created_at_data == ascending
+
+    def test_list_filters_descending_order_of_created_at_field(
+        self, api_client, user_account_list_url, user_ordering_filter_data
+    ):
+        url = user_account_list_url + "?ordering=-created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        descending = sorted(
+            [user.created_at for user in user_ordering_filter_data],
+            reverse=True,
+        )
+
+        assert created_at_data == descending
+
     # ========================================================================
     # Comments Action - Negative Cases
     # ========================================================================
@@ -1124,6 +1189,113 @@ class TestMeCommentAPIView(TestBase):
         assert response_1.status_code == 200
         assert response_2.status_code == 200
         assert response_3.status_code == 429
+
+    def test_list_filters_ascending_order_of_player_first_name_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=player__first_name"
+        response = api_client.get(url)
+
+        first_names = [
+            item["player"]["first_name"] for item in response.data["results"]
+        ]
+
+        ascending = sorted(
+            [comment.player.first_name for comment in me_comment_ordering_filter_data]
+        )
+
+        assert first_names == ascending
+
+    def test_list_filters_descending_order_of_player_first_name_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=-player__first_name"
+        response = api_client.get(url)
+
+        first_names = [
+            item["player"]["first_name"] for item in response.data["results"]
+        ]
+
+        descending = sorted(
+            [comment.player.first_name for comment in me_comment_ordering_filter_data],
+            reverse=True,
+        )
+
+        assert first_names == descending
+
+    def test_list_filters_ascending_order_of_player_last_name_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=player__last_name"
+        response = api_client.get(url)
+
+        last_names = [item["player"]["last_name"] for item in response.data["results"]]
+
+        ascending = sorted(
+            [comment.player.last_name for comment in me_comment_ordering_filter_data]
+        )
+
+        assert last_names == ascending
+
+    def test_list_filters_descending_order_of_player_last_name_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=-player__last_name"
+        response = api_client.get(url)
+
+        last_names = [item["player"]["last_name"] for item in response.data["results"]]
+
+        descending = sorted(
+            [comment.player.last_name for comment in me_comment_ordering_filter_data],
+            reverse=True,
+        )
+
+        assert last_names == descending
+
+    def test_list_filters_ascending_order_of_created_at_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        ascending = sorted(
+            [comment.created_at for comment in me_comment_ordering_filter_data]
+        )
+
+        assert created_at_data == ascending
+
+    def test_list_filters_descending_order_of_created_at_field(
+        self, api_client, me_comments_url, me_comment_ordering_filter_data, general_user
+    ):
+        api_client.force_authenticate(user=general_user)
+
+        url = me_comments_url + "?ordering=-created_at"
+        response = api_client.get(url)
+
+        created_at_data = [
+            parse_datetime(item["created_at"]) for item in response.data["results"]
+        ]
+
+        descending = sorted(
+            [comment.created_at for comment in me_comment_ordering_filter_data],
+            reverse=True,
+        )
+
+        assert created_at_data == descending
 
     # ========================================================================
     # List Action - Negative Cases
