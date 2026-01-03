@@ -1,29 +1,179 @@
 # player_roster
 
-日本語バージョンは[こちら](README_JP.md)
+[Japanese README](README.md)
 
-## Test Policy
+## Overview
 
-For test cases, see [here](documents/tests/).
+This project is a RESTful Web API developed using Django REST Framework (DRF),
+featuring user authentication and role-based authorization.
+
+Users can post and view comments on players.
+Available API operations and response contents are controlled
+based on the user role (admin / general).
+
+The API is designed with JWT-based authentication,
+role-based access control, and a resource-oriented approach,
+with an emphasis on testability.
+
+---
+
+## Features
+
+-   User authentication using JWT
+-   Role-based API access control (admin / general)
+-   Role-based response content control
+-   List and retrieve users, teams, players, and comments
+-   Create and view users, teams, players, and comments
+-   Conditional resource retrieval (filtering, searching, ordering)
+-   API request rate limiting (Throttling)
+-   Soft delete mechanism for data visibility control
+
+---
+
+## Design Decisions
+
+### User Registration and Authentication
+
+Users can freely register accounts.
+Only `username`, `email`, and `password` are required at registration.
+
+Since email addresses are considered personal information,
+they are excluded from API responses to expose only the minimum necessary data.
+
+All newly registered users are assigned the `general` role.
+Administrator users (`admin`) cannot be created via the API
+and are expected to be registered directly from the command line
+by the system administrator.
+
+This design prevents privilege escalation and improves security.
+
+---
+
+### Role-Based Access Control
+
+Creation and update operations for teams and players
+are restricted to administrator users (`admin`)
+to maintain data consistency.
+
+On the other hand, list and retrieve operations
+are available to general users (`general`),
+clearly separating read and write responsibilities.
+
+---
+
+### Response Content Control
+
+Even for the same endpoint,
+response contents are controlled based on the user role
+(`general` / `admin`).
+
+This allows administrative information and publicly accessible data
+to be clearly separated.
+
+---
+
+### Soft Delete
+
+Instead of physically deleting records,
+a soft delete approach using `deleted_at` is adopted.
+
+This enables recovery from accidental deletions
+and supports basic data history management.
+
+Soft-deleted records are hidden from general users,
+while administrators can access them when necessary.
+
+---
+
+### API Rate Limiting
+
+To ensure API stability,
+request rate limiting (Throttling) is applied
+based on the user type.
+
+This helps prevent excessive requests and abuse.
+
+---
+
+## Tech Stack
+
+### Backend
+
+-   Python
+-   Django
+-   Django REST Framework
+
+### Authentication / Authorization
+
+-   JWT (djangorestframework-simplejwt)
+
+### Database
+
+-   SQLite (development environment)
+-   PostgreSQL (intended for production)
+
+### API Features
+
+-   django-filter (Filtering)
+-   Ordering / SearchFilter (Django REST Framework)
+
+### Testing
+
+-   pytest
+-   pytest-django
+
+### Environment Management
+
+-   django-environ
+
+---
+
+## Testing
+
+Test targets are separated by responsibility.
 
 -   **Models**  
-    Model tests focus on verifying the correctness of model attributes and methods. They do not involve API requests or endpoint behavior, since those are tested at the serializer and view levels.
+    Verify model attributes and method behavior.
 
 -   **Serializers**  
-    Serializer tests focus on verifying the correctness of data transformation between model instances and primitive data types (e.g., dictionaries or lists). They also ensure that validation logic works as expected during deserialization. They do not check authentication or permissions, since those are the responsibility of view tests.
+    Verify serialization, deserialization,
+    and validation logic.
 
 -   **Views**  
-    View tests focus on verifying the correctness of API behavior through actual HTTP requests and responses. They ensure that authentication, permissions, routing, and serializer integration work together as expected. These are considered more like integration tests than unit tests.
+    Verify authentication, authorization,
+    and response behavior through actual HTTP requests.
 
-## JWT Authentication
+Detailed test cases are available in [documents/tests](documents/tests/).
 
--   The client remains authenticated as long as the access token is valid.
--   If the access token expires but the refresh token is still valid, the client can use it to obtain a new access token.
--   If both tokens expire, the client must log in again with a username and password to obtain a new JWT.
+---
 
-## Token Expiration
+## Authentication
 
-The default SimpleJWT token lifetimes are highly security-oriented and may not suit typical web applications. For this project, I adjusted them to balance security and usability:
+This project uses JWT-based authentication.
 
--   **Access token:** 15 minutes
--   **Refresh token:** 7 days
+By using access tokens and refresh tokens,
+a balance between security and usability is achieved.
+
+---
+
+## Setup
+
+```bash
+git clone https://github.com/kikutan-day65/player_roster.git
+cd player_roster
+
+python -m venv venv
+source venv/bin/activate
+
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py runserver
+```
+
+---
+
+## Notes
+
+-   This project is intended for learning and design exploration.
+-   No frontend is implemented; the API is designed to be used standalone.
