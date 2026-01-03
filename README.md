@@ -1,6 +1,6 @@
 # player_roster
 
-[Japanese README](README.md)
+[日本語 README](README_JP.md)
 
 ## Overview
 
