@@ -146,24 +146,3 @@ class Comment(models.Model):
     def is_deleted(self):
         """Whether the comment is logically deleted."""
         return self.deleted_at is not None
-
-
-class Favorite(models.Model):
-    id = models.UUIDField(_("id"), primary_key=True, default=uuid4, editable=False)
-    user = models.ForeignKey(
-        "user_account.UserAccount",
-        on_delete=models.CASCADE,
-        related_name="favorites",
-        verbose_name=_("user_id"),
-    )
-    player = models.ForeignKey(
-        "Player",
-        on_delete=models.CASCADE,
-        related_name="favorites",
-        verbose_name=_("player_id"),
-    )
-    created_at = models.DateTimeField(
-        _("created at"),
-        auto_now_add=True,
-        help_text=_("Timestamp of when the favorite was created"),
-    )
