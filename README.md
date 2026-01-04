@@ -15,6 +15,9 @@ The API is designed with JWT-based authentication,
 role-based access control, and a resource-oriented approach,
 with an emphasis on testability.
 
+🔗 **Swagger UI (API Documentation)**
+https://player-roster.onrender.com/api/schema/swagger-ui/
+
 ## Features
 
 -   User authentication using JWT
@@ -150,6 +153,15 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
+
+## API Demo Usage
+
+Swagger UI is available at:  
+https://player-roster.onrender.com/api/schema/swagger-ui/
+
+1. Create a user via the user registration endpoint (`POST api/v1/user-accounts/`).
+2. Obtain an access token via `/api/token/`.
+3. Click the **Authorize** button and enter your JWT access token.
 
 ## Notes
 

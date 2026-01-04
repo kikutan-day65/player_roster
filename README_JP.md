@@ -12,6 +12,9 @@
 JWT による認証・認可を前提に、
 ロールベースの権限制御やリソース指向の API 設計、 およびテストを意識した実装を行っている。
 
+🔗 **Swagger UI (API Documentation)**
+https://player-roster.onrender.com/api/schema/swagger-ui/
+
 ## 主な機能
 
 -   JWT を用いたユーザ認証
@@ -137,6 +140,15 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
+
+## API デモ利用手順
+
+Swagger UI は以下の URL からアクセス。
+https://player-roster.onrender.com/api/docs/
+
+1. ユーザー登録エンドポイント（`POST api/v1/user-accounts/`）を使用してユーザーを作成。
+2. `/api/token/` にリクエストを送信し、JWT のアクセストークンを取得。
+3. Swagger UI の **Authorize** ボタンをクリックし、取得したアクセストークンを入力。
 
 ## 補足
 
