@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_extensions",
     "django_filters",
+    "drf_spectacular",
     "user_account",
     "roster",
 ]
@@ -166,9 +167,26 @@ REST_FRAMEWORK = {
         "general": "1000/hour",
         "admin": "10000/hour",
     },
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": (timedelta(days=7) if DEBUG else timedelta(minutes=15)),
     "REFRESH_TOKEN_LIFETIME": (timedelta(days=30) if DEBUG else timedelta(days=7)),
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Player-Roster API",
+    "DESCRIPTION": """
+    RESTful Web API for managing players and related comments.
+
+    The API allows users to view player information and post comments.
+    Available operations and response contents are controlled based on user roles (admin / general).
+
+    Authentication is handled using JWT (JSON Web Tokens),
+    and the API is designed with a resource-oriented approach
+    and an emphasis on testability.
+    """,
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
 }
