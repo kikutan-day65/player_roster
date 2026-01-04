@@ -1,0 +1,1744 @@
+openapi: 3.0.3
+info:
+  title: Player-Roster API
+  version: 1.0.0
+  description: "\n    RESTful Web API for managing players and related comments.\n\n
+    \   The API allows users to view player information and post comments.\n    Available
+    operations and response contents are controlled based on user roles (admin / general).\n\n
+    \   Authentication is handled using JWT (JSON Web Tokens),\n    and the API is
+    designed with a resource-oriented approach\n    and an emphasis on testability.\n
+    \   "
+paths:
+  /api/token/:
+    post:
+      operationId: token_create
+      description: |-
+        Takes a set of user credentials and returns an access and refresh JSON web
+        token pair to prove the authentication of those credentials.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/token/refresh/:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/v1/comments/:
+    get:
+      operationId: v1_comments_list
+      parameters:
+      - in: query
+        name: created_at_date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_year
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_gte
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_lte
+        schema:
+          type: number
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: player_first_name
+        schema:
+          type: string
+      - in: query
+        name: player_last_name
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: user_username
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentListRetrievePublicList'
+          description: ''
+    post:
+      operationId: v1_comments_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentCreate'
+          description: ''
+  /api/v1/comments/{id}/:
+    get:
+      operationId: v1_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this comment.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentListRetrievePublic'
+          description: ''
+    patch:
+      operationId: v1_comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this comment.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCommentPatch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPatch'
+          description: ''
+    delete:
+      operationId: v1_comments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this comment.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/players/:
+    get:
+      operationId: v1_players_list
+      parameters:
+      - in: query
+        name: created_at_date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_year
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_gte
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_lte
+        schema:
+          type: number
+      - in: query
+        name: first_name
+        schema:
+          type: string
+      - in: query
+        name: last_name
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: team_name
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlayerListRetrievePublicList'
+          description: ''
+    post:
+      operationId: v1_players_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlayerCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerCreate'
+          description: ''
+  /api/v1/players/{id}/:
+    get:
+      operationId: v1_players_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this player.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerListRetrievePublic'
+          description: ''
+    patch:
+      operationId: v1_players_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this player.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayerPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayerPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlayerPatch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerPatch'
+          description: ''
+    delete:
+      operationId: v1_players_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this player.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/players/{id}/comments/:
+    get:
+      operationId: v1_players_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this player.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerListRetrievePublic'
+          description: ''
+  /api/v1/teams/:
+    get:
+      operationId: v1_teams_list
+      parameters:
+      - in: query
+        name: created_at_date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_year
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_gte
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_lte
+        schema:
+          type: number
+      - in: query
+        name: name
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: sport
+        schema:
+          type: string
+          title: Sport_name
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTeamListRetrievePublicList'
+          description: ''
+    post:
+      operationId: v1_teams_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TeamCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeamCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamCreate'
+          description: ''
+  /api/v1/teams/{id}/:
+    get:
+      operationId: v1_teams_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this team.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamListRetrievePublic'
+          description: ''
+    patch:
+      operationId: v1_teams_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this team.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTeamPatch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamPatch'
+          description: ''
+    delete:
+      operationId: v1_teams_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this team.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/teams/{id}/players/:
+    get:
+      operationId: v1_teams_players_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this team.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamListRetrievePublic'
+          description: ''
+  /api/v1/user-accounts/:
+    get:
+      operationId: v1_user_accounts_list
+      parameters:
+      - in: query
+        name: created_at_date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: created_at_year
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_gte
+        schema:
+          type: number
+      - in: query
+        name: created_at_year_lte
+        schema:
+          type: number
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: username
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserAccountListRetrievePublicList'
+          description: ''
+    post:
+      operationId: v1_user_accounts_create
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAccountCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAccountCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAccountCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountCreate'
+          description: ''
+  /api/v1/user-accounts/{id}/:
+    get:
+      operationId: v1_user_accounts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountListRetrievePublic'
+          description: ''
+    patch:
+      operationId: v1_user_accounts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAccountPatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAccountPatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAccountPatch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountPatch'
+          description: ''
+    delete:
+      operationId: v1_user_accounts_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/user-accounts/{id}/comments/:
+    get:
+      operationId: v1_user_accounts_comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAccountListRetrievePublic'
+          description: ''
+  /api/v1/user-accounts/me/:
+    get:
+      operationId: v1_user_accounts_me_retrieve
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeRetrieve'
+          description: ''
+    patch:
+      operationId: v1_user_accounts_me_partial_update
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMePatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMePatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMePatch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MePatch'
+          description: ''
+    delete:
+      operationId: v1_user_accounts_me_destroy
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/user-accounts/me/comments/:
+    get:
+      operationId: v1_user_accounts_me_comments_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - v1
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMeCommentListList'
+          description: ''
+components:
+  schemas:
+    CommentCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was created
+        player:
+          allOf:
+          - $ref: '#/components/schemas/PlayerNested'
+          readOnly: true
+        player_id:
+          type: string
+          format: uuid
+          writeOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - player
+      - player_id
+    CommentListRetrievePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was updated
+        player:
+          allOf:
+          - $ref: '#/components/schemas/PlayerNested'
+          readOnly: true
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserAccountNested'
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - player
+      - updated_at
+      - user
+    CommentPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was updated
+        player:
+          allOf:
+          - $ref: '#/components/schemas/PlayerNested'
+          readOnly: true
+        player_id:
+          type: string
+          format: uuid
+          writeOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - player
+      - player_id
+      - updated_at
+    MeCommentList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was updated
+        player:
+          allOf:
+          - $ref: '#/components/schemas/PlayerNested'
+          readOnly: true
+      required:
+      - body
+      - created_at
+      - id
+      - player
+      - updated_at
+    MePatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was updated
+      required:
+      - created_at
+      - email
+      - id
+      - updated_at
+      - username
+    MeRetrieve:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was updated
+      required:
+      - created_at
+      - email
+      - id
+      - updated_at
+      - username
+    PaginatedCommentListRetrievePublicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentListRetrievePublic'
+    PaginatedMeCommentListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MeCommentList'
+    PaginatedPlayerListRetrievePublicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerListRetrievePublic'
+    PaginatedTeamListRetrievePublicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamListRetrievePublic'
+    PaginatedUserAccountListRetrievePublicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAccountListRetrievePublic'
+    PatchedCommentPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the comment was updated
+        player:
+          allOf:
+          - $ref: '#/components/schemas/PlayerNested'
+          readOnly: true
+        player_id:
+          type: string
+          format: uuid
+          writeOnly: true
+    PatchedMePatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was updated
+    PatchedPlayerPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        last_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was updated
+        team:
+          allOf:
+          - $ref: '#/components/schemas/TeamNested'
+          readOnly: true
+        team_id:
+          type: string
+          format: uuid
+          writeOnly: true
+    PatchedTeamPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Team_name
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z0-9 ]+$
+          maxLength: 150
+        sport:
+          allOf:
+          - $ref: '#/components/schemas/SportEnum'
+          title: Sport_name
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was updated
+    PatchedUserAccountPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        is_superuser:
+          type: boolean
+          readOnly: true
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was updated
+    PlayerCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        last_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was created
+        team:
+          allOf:
+          - $ref: '#/components/schemas/TeamNested'
+          readOnly: true
+        team_id:
+          type: string
+          format: uuid
+          writeOnly: true
+      required:
+      - created_at
+      - first_name
+      - id
+      - last_name
+      - team
+      - team_id
+    PlayerListRetrievePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters only.
+        last_name:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters only.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was created
+        team:
+          allOf:
+          - $ref: '#/components/schemas/TeamNested'
+          readOnly: true
+      required:
+      - created_at
+      - first_name
+      - id
+      - last_name
+      - team
+    PlayerNested:
+      type: object
+      description: |-
+        {
+            "id": "xxx-xxx-xxx",
+            "first_name": "FirstName",
+            "last_name": "LastName",
+            "team": {
+                "id": "yyy-yyy-yyy",
+                "name": "Team Name"
+            }
+        }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        last_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        team:
+          allOf:
+          - $ref: '#/components/schemas/TeamNested'
+          readOnly: true
+      required:
+      - first_name
+      - id
+      - last_name
+      - team
+    PlayerPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        last_name:
+          type: string
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z ]+$
+          maxLength: 150
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the player was updated
+        team:
+          allOf:
+          - $ref: '#/components/schemas/TeamNested'
+          readOnly: true
+        team_id:
+          type: string
+          format: uuid
+          writeOnly: true
+      required:
+      - created_at
+      - first_name
+      - id
+      - last_name
+      - team
+      - team_id
+      - updated_at
+    SportEnum:
+      enum:
+      - baseball
+      - football
+      - basketball
+      type: string
+      description: |-
+        * `baseball` - Baseball
+        * `football` - Football
+        * `basketball` - Basketball
+    TeamCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Team_name
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z0-9 ]+$
+          maxLength: 150
+        sport:
+          allOf:
+          - $ref: '#/components/schemas/SportEnum'
+          title: Sport_name
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was created
+      required:
+      - created_at
+      - id
+      - name
+      - sport
+    TeamListRetrievePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+          title: Team_name
+          description: Required. 150 characters or fewer. Letters only.
+        sport:
+          allOf:
+          - $ref: '#/components/schemas/SportEnum'
+          readOnly: true
+          title: Sport_name
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was created
+      required:
+      - created_at
+      - id
+      - name
+      - sport
+    TeamNested:
+      type: object
+      description: |-
+        {
+            "id": "yyy-yyy-yyy",
+            "name": "Team Name"
+        }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Team_name
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z0-9 ]+$
+          maxLength: 150
+      required:
+      - id
+      - name
+    TeamPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: Team_name
+          description: Required. 150 characters or fewer. Letters only.
+          pattern: ^[A-Za-z0-9 ]+$
+          maxLength: 150
+        sport:
+          allOf:
+          - $ref: '#/components/schemas/SportEnum'
+          title: Sport_name
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the team was updated
+      required:
+      - created_at
+      - id
+      - name
+      - sport
+      - updated_at
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UserAccountCreate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          maxLength: 128
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+      required:
+      - created_at
+      - email
+      - id
+      - password
+      - username
+    UserAccountListRetrievePublic:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+      required:
+      - created_at
+      - id
+      - username
+    UserAccountNested:
+      type: object
+      description: |-
+        {
+            "id": "aaa-aaa-aaa",
+            "username": "user_name"
+        }
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+      required:
+      - id
+      - username
+    UserAccountPatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        is_superuser:
+          type: boolean
+          readOnly: true
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was created
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp of when the user was updated
+      required:
+      - created_at
+      - email
+      - id
+      - is_staff
+      - is_superuser
+      - updated_at
+      - username
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

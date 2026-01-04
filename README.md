@@ -15,8 +15,6 @@ The API is designed with JWT-based authentication,
 role-based access control, and a resource-oriented approach,
 with an emphasis on testability.
 
----
-
 ## Features
 
 -   User authentication using JWT
@@ -27,8 +25,6 @@ with an emphasis on testability.
 -   Conditional resource retrieval (filtering, searching, ordering)
 -   API request rate limiting (Throttling)
 -   Soft delete mechanism for data visibility control
-
----
 
 ## Design Decisions
 
@@ -47,8 +43,6 @@ by the system administrator.
 
 This design prevents privilege escalation and improves security.
 
----
-
 ### Role-Based Access Control
 
 Creation and update operations for teams and players
@@ -59,8 +53,6 @@ On the other hand, list and retrieve operations
 are available to general users (`general`),
 clearly separating read and write responsibilities.
 
----
-
 ### Response Content Control
 
 Even for the same endpoint,
@@ -69,8 +61,6 @@ response contents are controlled based on the user role
 
 This allows administrative information and publicly accessible data
 to be clearly separated.
-
----
 
 ### Soft Delete
 
@@ -83,8 +73,6 @@ and supports basic data history management.
 Soft-deleted records are hidden from general users,
 while administrators can access them when necessary.
 
----
-
 ### API Rate Limiting
 
 To ensure API stability,
@@ -92,8 +80,6 @@ request rate limiting (Throttling) is applied
 based on the user type.
 
 This helps prevent excessive requests and abuse.
-
----
 
 ## Tech Stack
 
@@ -126,8 +112,6 @@ This helps prevent excessive requests and abuse.
 
 -   django-environ
 
----
-
 ## Testing
 
 Test targets are separated by responsibility.
@@ -145,8 +129,6 @@ Test targets are separated by responsibility.
 
 Detailed test cases are available in [documents/tests](documents/tests/).
 
----
-
 ## Authentication
 
 This project uses JWT-based authentication.
@@ -154,9 +136,7 @@ This project uses JWT-based authentication.
 By using access tokens and refresh tokens,
 a balance between security and usability is achieved.
 
----
-
-## Setup
+## Setup (Local Development)
 
 ```bash
 git clone https://github.com/kikutan-day65/player_roster.git
@@ -170,8 +150,6 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
-
----
 
 ## Notes
 
